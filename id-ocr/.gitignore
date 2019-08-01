@@ -1,0 +1,9 @@
+# Cmake file
+release
+cmake_install.cmake
+bin
+lib
+CMakeCache.txt
+CMakeFiles
+OCR.cbp
+Makefile

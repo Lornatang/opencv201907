@@ -1,0 +1,5 @@
+/usr/local/lib/libocr.dylib
+/usr/local/include/log.hpp
+/usr/local/include/format.hpp
+/usr/local/include/pretreatment.hpp
+/usr/local/bin/idocr
