@@ -30,3 +30,15 @@
 *.exe
 *.out
 *.app
+
+# IDE file
+.vscode
+.idea
+
+# Mac file
+.DS_Store
+
+# image file
+*.png
+*.jpeg
+*.jpg
