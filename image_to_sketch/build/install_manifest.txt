@@ -1,0 +1,5 @@
+/usr/local/lib/libits.dylib
+/usr/local/include/dir.hpp
+/usr/local/include/download.hpp
+/usr/local/include/process.hpp
+/usr/local/bin/sketch

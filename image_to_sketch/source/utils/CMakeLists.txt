@@ -1,32 +1,32 @@
-# minnum opencv version
-cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.12)
 
-# project name
 project(its)
 
-# find opencv
+# find OpenCV
 find_package(OpenCV REQUIRED)
 
 # load opencv include
-include_directories(/usr/local/include/opencv4)
-# load its include
-include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(/usr/local/include/opencv4/)
 
-#
-set(ITS_SOURCE
-    )
-add_executable(${PROJECT_NAME}
-    source/main.cc
-    include/dir.hpp
-    include/download.hpp
-    include/log.hpp
-    include/process.hpp)
+# make its shared library
+set(LIBRARY_OUTPUT_PATH lib)
+set(ITS
+    dir.cc
+    download.cc
+    process.cc)
+add_library(its SHARED ${ITS})
+# install library
+install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION lib)
 
-# link its library
-target_link_libraries(${PROJECT_NAME} ${TORCH_LIBRARIES} ${OpenCV_LIBS})
+# install include
+set(INCLUDE
+    ../../include/dir.hpp
+    ../../include/download.hpp
+    ../../include/process.hpp)
+install(FILES ${INCLUDE} DESTINATION include)
+
+# load library
+target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
 # set C++17
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
-
-
- 
 

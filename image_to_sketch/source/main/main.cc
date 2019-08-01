@@ -14,46 +14,18 @@
  * ==============================================================================
  */
 
-//#include "./utils/dir.cc"
-//#include "./utils/download.cc"
-//#include "./utils/process.cc"
-//#include "./time.hpp"
-
-#include "dir.hpp"
-#include "download.hpp"
-#include "log.hpp"
-#include "process.hpp"
-
-#include <ctime>
+#include "../../include/dir.hpp"
+#include "../../include/download.hpp"
+#include "../../include/process.hpp"
 
 using namespace cv;
 using namespace std;
 
-const char *BASE_DIR = "./dlcv/cc/image_to_sketch/temp/";
-const char *SAVE_DIR = "./dlcv/cc/image_to_sketch/static/";
-String rawSuffix = "raw.png";
-String newSuffix = "sketch.png";
-
 int main(int argc, const char *argv[]) {
-  time_t t;
-
-  if ((__mkdir__(BASE_DIR)) && (__mkdir__(SAVE_DIR)) == -1)
-    lprintf(MSG_WARNING, "Warning: folder exists!\n");
-
-  String rawFileName = BASE_DIR + rawSuffix;
-  if (download(argv[1], rawFileName.c_str()) == -1) {
-    lprintf(MSG_ERROR, "Error: image download error!\n");
-  }
-
-  String newFileName = SAVE_DIR + newSuffix;
-  if (imageToSketch(rawFileName, newFileName) == -1) {
-    lprintf(MSG_ERROR, "Error: image convert sketch error!\n");
-    return -1;
-  }
-
-  if (__rmdir__(BASE_DIR) == -1) {
-    lprintf(MSG_ERROR, "Error: delete folder error!\n");
-    return -1;
-  }
+  Mat image = imread(argv[1], 0);
+  download(argv[1], argv[2]);
+  Mat newImage = imageToSketch(argv[2]);
+  imshow("image", newImage);
+  waitKey(0);
   return 0;
 }

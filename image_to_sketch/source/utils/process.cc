@@ -15,16 +15,10 @@
  */
 
 
-#ifndef ITS_PROCESS_HPP
-#define ITS_PROCESS_HPP
-
-
-#include "opencv2/imgproc.hpp"
-#include "opencv2/highgui.hpp"
-
-#include <iostream>
+#include "../../include/process.hpp"
 
 using namespace cv;
+using namespace std;
 
 /**
  * Convert color map to simple pencil style.
@@ -36,6 +30,28 @@ using namespace cv;
  * @author: Changyu Liu.
  * @last modify time: 2019.8.1
  */
-Mat imageToSketch(const char *fileName);
+Mat imageToSketch(const char *fileName) {
+  Mat image = imread(fileName, 0);
 
-#endif // ITS_PROCESS_HPP
+  Mat newImage;
+  // Scales, calculates absolute values, and converts the result to 8-bit.
+  addWeighted(image, -1, static_cast<const _InputArray>(0.0), 0, 255, newImage);
+
+  // Applies the bilateral filter to an image.
+  GaussianBlur(newImage, newImage, Size(11, 11), 0);
+
+  // Blend: color dodge
+  Mat dstImage(newImage.size(), CV_8UC1);
+
+  for (int y = 0; y < image.rows; y++) {
+    auto *P0 = newImage.ptr<uchar>(y);
+    auto *P1 = newImage.ptr<uchar>(y);
+    auto *P = dstImage.ptr<uchar>(y);
+    for (int x = 0; x < image.cols; x++) {
+      int tmp0 = P0[x];
+      int tmp1 = P1[x];
+      P[x] = (uchar) min((tmp0 + (tmp0 * tmp1) / (256 - tmp1)), 255);
+    }
+  }
+  return newImage;
+}

@@ -17,4 +17,35 @@
 #ifndef ITS_DIR_HPP
 #define ITS_DIR_HPP
 
-#endif //ITS_DIR_HPP
+#include <dirent.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#include <cstdio>
+#include <cstring>
+
+/**
+ * Create a directory if the file directory does not exist.
+ * Args:
+ *   dirName: The name of the folder you entered.
+ * Returns:
+ *   success create return 0, else return -1.
+ * @author: Changyu Liu.
+ * @last modify time: 2019.7.30.
+ */
+int __mkdir__(const char *dirName);
+
+/**
+ * Delete files generated during program running.
+ * Args:
+ *   dirName: Folder name to delete.
+ * Returns:
+ *   success create return 0, else return -1.
+ * @author: Changyu Liu.
+ * @last modify time: 2019.7.30.
+ */
+int __rmdir__(const char *dirName);
+
+
+#endif // ITS_DIR_HPP

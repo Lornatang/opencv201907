@@ -17,11 +17,11 @@
 /**
  * Image download function header file.
  * @author: Changyu Liu
- * @last modify time: 2019.7.30
+ * @last modify time: 2019.8.1
  */
 
-#ifndef INCLUDE_DOWNLOAD_HPP
-#define INCLUDE_DOWNLOAD_HPP
+#ifndef ITS_DOWNLOAD_HPP
+#define ITS_DOWNLOAD_HPP
 
 #define HOST_NAME_LEN     256
 #define URI_MAX_LEN       2048
@@ -40,24 +40,18 @@
 #define HTTP_REDIRECT   302
 #define HTTP_NOT_FOUND  404
 
-#ifndef PRINT_LEVEL
-#define PRINT_LEVEL
-static int print_level = MSG_INFO | MSG_DEBUG | MSG_WARNING | MSG_ERROR;
-#endif  // PRINT_LEVEL
-
 #include <arpa/inet.h>
 #include <cerrno>
 #include <fcntl.h>
 #include <netdb.h>
 #include <cstdio>
+#include <stdlib.h>
 #include <cstdlib>
 #include <cstring>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <ctime>
 #include <unistd.h>
-
-#include "log.hpp"
 
 typedef struct {
   int sock;  // Socket Communicating with Server
@@ -88,18 +82,7 @@ typedef struct {
  * @ author: Changyu Liu
  * @ last modify time: 2019.7.30
  */
-char *strncasestr(char *str, char *sub) {
-  if (!str || !sub) return nullptr;
-
-  int len = strlen(sub);
-  if (len == 0) return nullptr;
-
-  while (*str) {
-    if (strncasecmp(str, sub, len) == 0) return str;
-    ++str;
-  }
-  return nullptr;
-}
+char *strncasestr(char *str, char *sub);
 
 /**
  * resolve domain.
@@ -111,45 +94,7 @@ char *strncasestr(char *str, char *sub) {
  * @ author: Changyu Liu
  * @ last modify time: 2019.7.30
  */
-int parser_URL(char *url, http_t *info) {
-  char *tmp = url, *start = nullptr, *end = nullptr;
-  int len = 0;
-
-  if (strncasestr(tmp, (char *) "http://"))
-    tmp += strlen("http://");
-  else if (strncasestr(tmp, (char *) "https://"))
-    tmp += strlen("https://");
-
-  start = tmp;
-  if (!(tmp = strchr(start, '/'))) return -1;
-
-  end = tmp;
-
-  // port default 80.
-  info->port = 80;
-
-  len = _MIN(end - start, HOST_NAME_LEN - 1);
-  strncpy(info->host_name, start, len);
-  info->host_name[len] = '\0';
-
-  if ((tmp = strchr(start, ':')) && tmp < end) {
-    info->port = atoi(tmp + 1);
-    if (info->port <= 0 || info->port >= 65535) return -1;
-
-    // Assignment before overwriting
-    len = _MIN(tmp - start, HOST_NAME_LEN - 1);
-    strncpy(info->host_name, start, len);
-    info->host_name[len] = '\0';
-  }
-
-  // copy url
-  start = end;
-  strncpy(info->url, start, URI_MAX_LEN - 1);
-
-  lprintf(MSG_INFO, "Parse url ok\nhost:%s, port:%d, url:%s\n", info->host_name,
-          info->port, info->url);
-  return 0;
-}
+int parser_URL(char *url, http_t *info);
 
 /**
  * resolve dns
@@ -160,26 +105,7 @@ int parser_URL(char *url, http_t *info) {
  * @ author: Changyu Liu
  * @ last modify time: 2019.7.30
  */
-unsigned long dns(char *host_name) {
-  struct hostent *host;
-  struct in_addr addr{};
-  char **pp;
-
-  host = gethostbyname(host_name);
-  if (host == nullptr) {
-    lprintf(MSG_ERROR, "gethostbyname %s failed\n", host_name);
-    return -1;
-  }
-
-  pp = host->h_addr_list;
-
-  if (*pp != nullptr) {
-    addr.s_addr = *((unsigned int *) *pp);
-    lprintf(MSG_INFO, "%s address is %s\n", host_name, inet_ntoa(addr));
-    return addr.s_addr;
-  }
-  return 0;
-}
+unsigned long dns(char *host_name);
 
 /**
  * set connect time out
@@ -190,30 +116,7 @@ unsigned long dns(char *host_name) {
  * @ author: Changyu Liu
  * @ last modify time: 2019.7.30
  */
-int set_socket_option(int sock) {
-  struct timeval timeout{};
-
-  timeout.tv_sec = RCV_SND_TIMEOUT / 1000;
-  timeout.tv_usec = RCV_SND_TIMEOUT % 1000 * 1000;
-  lprintf(MSG_DEBUG, "%ds %dus\n", (int) timeout.tv_sec, (int) timeout.tv_usec);
-  // set socket is success.
-
-  // set send time out status
-  if (-1 == setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (char *) &timeout,
-                       sizeof(struct timeval))) {
-    lprintf(MSG_ERROR, "setsockopt error: %m\n");
-    return -1;
-  }
-
-  // set receive time out staus
-  if (-1 == setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char *) &timeout,
-                       sizeof(struct timeval))) {
-    lprintf(MSG_ERROR, "setsockopt error: %m\n");
-    return -1;
-  }
-
-  return 0;
-}
+int set_socket_option(int sock);
 
 /**
  * connet to server func
@@ -224,44 +127,7 @@ int set_socket_option(int sock) {
  * @ author: Changyu Liu
  * @ last modify time: 2019.7.30
  * */
-int connect_server(http_t *info) {
-  int sockfd;
-  struct sockaddr_in server{};
-  unsigned long addr = 0;
-  unsigned short port = info->port;
-
-  sockfd = socket(AF_INET, SOCK_STREAM, 0);
-  if (-1 == sockfd) {
-    lprintf(MSG_ERROR, "socket create failed\n");
-    close(sockfd);
-    return -1;
-  }
-
-  if (-1 == set_socket_option(sockfd)) {
-    close(sockfd);
-    return -1;
-  }
-
-  if ((addr = dns(info->host_name)) == -1) {
-    lprintf(MSG_ERROR, "Get Dns Failed\n");
-    close(sockfd);
-    return -1;
-  }
-  memset(&server, 0, sizeof(server));
-  server.sin_family = AF_INET;
-  server.sin_port = htons(port);
-  server.sin_addr.s_addr = addr;
-
-  if (-1 ==
-      connect(sockfd, (struct sockaddr *) &server, sizeof(struct sockaddr))) {
-    lprintf(MSG_ERROR, "connect failed: %m\n");
-    close(sockfd);
-    return -1;
-  }
-
-  info->sock = sockfd;
-  return 0;
-}
+int connect_server(http_t *info);
 
 /**
  * Send server requests
@@ -272,19 +138,7 @@ int connect_server(http_t *info) {
  * @ author: Changyu Liu
  * @ last modify time: 2019.7.30
  */
-int send_request(http_t *info) {
-  memset(info->buffer, 0x0, RECV_BUF);
-  snprintf(info->buffer, RECV_BUF - 1,
-           "GET %s HTTP/1.1\r\n"
-           "Accept: */*\r\n"
-           "User-Agent: Mozilla/5.0 (compatible; MSIE 5.01; Windows NT 5.0)\r\n"
-           "Host: %s\r\n"
-           "Connection: Close\r\n\r\n",
-           info->url, info->host_name);
-
-  lprintf(MSG_DEBUG, "request:\n%s\n", info->buffer);
-  return send(info->sock, info->buffer, strlen(info->buffer), 0);
-}
+int send_request(http_t *info);
 
 /**
  * resolve response header
@@ -295,51 +149,7 @@ int send_request(http_t *info) {
  * @ author: Changyu Liu
  * @ last modify time: 2019.7.30
  */
-int parse_http_header(http_t *info) {
-  char *p = nullptr;
-
-  // resove first line
-  fgets(info->buffer, RECV_BUF, info->in);
-  p = strchr(info->buffer, ' ');
-  // check http/https is legitimate
-  if (!p || !strcasestr(info->buffer, "HTTP")) {
-    lprintf(MSG_ERROR, "bad http head\n");
-    return -1;
-  }
-  info->status_code = atoi(p + 1);
-  lprintf(MSG_DEBUG, "http status code: %d\n", info->status_code);
-
-  // Loop Read Resolve http Header
-  while (fgets(info->buffer, RECV_BUF, info->in)) {
-    // Judging whether the head has finished reading
-    if (!strcmp(info->buffer, "\r\n")) return 0;
-
-    lprintf(MSG_DEBUG, "%s", info->buffer);
-
-    if ((p = strncasestr(info->buffer, (char *) "Content-length"))) {
-      p = strchr(p, ':');
-      p += 2;  // Skip the colon and the space behind it
-      info->len = atoi(p);
-      lprintf(MSG_INFO, "Content-length: %d\n", info->len);
-    } else if ((p = strncasestr(info->buffer, (char *) "Transfer-Encoding"))) {
-      if ((strncasestr(info->buffer, (char *) "chunked"))) {
-        info->chunked_flag = 1;
-      } else {
-        // Unsupported Coding Transfer.
-        lprintf(MSG_ERROR, "Not support %s", info->buffer);
-        return -1;
-      }
-      lprintf(MSG_INFO, "%s", info->buffer);
-    } else if ((p = strncasestr(info->buffer, (char *) "Location"))) {
-      p = strchr(p, ':');
-      p += 2;  // Skip the colon and the space behind it
-      strncpy(info->location, p, URI_MAX_LEN - 1);
-      lprintf(MSG_INFO, "Location: %s\n", info->location);
-    }
-  }
-  lprintf(MSG_ERROR, "bad http/https head\n");
-  return 0;
-}
+int parse_http_header(http_t *info);
 
 /**
  * Save the content of the server response.
@@ -352,29 +162,7 @@ int parse_http_header(http_t *info) {
  * @ author: Changyu Liu
  * @ last modify time: 2019.7.30
  */
-int save_data(http_t *info, const char *buf, int len) {
-  int total_len = len;
-  int write_len = 0;
-
-  // open file
-  if (!info->save_file) {
-    info->save_file = fopen(info->save_path, "w");
-    if (!info->save_file) {
-      lprintf(MSG_ERROR, "fopen %s error: %m\n", info->save_path);
-      return -1;
-    }
-  }
-
-  while (total_len) {
-    write_len = fwrite(buf, sizeof(char), len, info->save_file);
-    if (write_len < len && errno != EINTR) {
-      lprintf(MSG_ERROR, "fwrite error: %m\n");
-      return -1;
-    }
-    total_len -= write_len;
-  }
-  return 0;
-}
+int save_data(http_t *info, const char *buf, int len);
 
 /**
  * read file data
@@ -386,50 +174,7 @@ int save_data(http_t *info, const char *buf, int len) {
  * @ author: Changyu Liu
  * @ last modify time: 2019.7.30
  */
-int read_data(http_t *info, int len) {
-  int total_len = len;
-  int read_len = 0;
-  int rtn_len = 0;
-
-  while (total_len) {
-    read_len = _MIN(total_len, RECV_BUF);
-    rtn_len = fread(info->buffer, sizeof(char), read_len, info->in);
-    if (rtn_len < read_len) {
-      if (ferror(info->in)) {
-        if (errno == EINTR);
-        else if (errno == EAGAIN || errno == EWOULDBLOCK)  // time out
-        {
-          lprintf(MSG_ERROR, "socket recvice timeout: %dms\n", RCV_SND_TIMEOUT);
-          total_len -= rtn_len;
-          lprintf(MSG_DEBUG, "read len: %d\n", rtn_len);
-          break;
-        } else  // other error
-        {
-          lprintf(MSG_ERROR, "fread error: %m\n");
-          break;
-        }
-      } else  // read file end
-      {
-        lprintf(MSG_ERROR, "socket closed by peer\n");
-        total_len -= rtn_len;
-        lprintf(MSG_DEBUG, "read len: %d\n", rtn_len);
-        break;
-      }
-    }
-
-    total_len -= rtn_len;
-    if (-1 == save_data(info, info->buffer, rtn_len)) {
-      return -1;
-    }
-    info->recv_data_len += rtn_len;
-  }
-  if (total_len != 0) {
-    lprintf(MSG_ERROR, "we need to read %d bytes, but read %d bytes now\n", len,
-            len - total_len);
-    return -1;
-  }
-  return 0;
-}
+int read_data(http_t *info, int len);
 
 /**
  * Chunked data sent back by receiving server
@@ -440,24 +185,7 @@ int read_data(http_t *info, int len) {
  * @ author: Changyu Liu
  * @ last modify time: 2019.7.30
  */
-int recv_chunked_response(http_t *info) {
-  long part_len;
-
-  do {
-    // Get the length of this section
-    fgets(info->buffer, RECV_BUF, info->in);
-    part_len = strtol(info->buffer, NULL, 16);
-    lprintf(MSG_DEBUG, "part len: %ld\n", part_len);
-    if (-1 == read_data(info, part_len)) return -1;
-
-    // Read the r\n characters behind
-    if (2 != fread(info->buffer, sizeof(char), 2, info->in)) {
-      lprintf(MSG_ERROR, "fread \\r\\n error : %m\n");
-      return -1;
-    }
-  } while (part_len);
-  return 0;
-}
+int recv_chunked_response(http_t *info);
 
 /**
  * Calculate average download speed
@@ -468,17 +196,7 @@ int recv_chunked_response(http_t *info) {
  * @ author: Changyu Liu
  * @ last modify time: 2019.7.30
  */
-float calc_download_speed(http_t *info) {
-  int diff_time = 0;
-  float speed = 0.0;
-
-  diff_time = info->end_recv_time - info->start_recv_time;
-  /* 最小间隔1s，避免计算浮点数结果为inf */
-  if (0 == diff_time) diff_time = 1;
-  speed = (float) info->recv_data_len / (float) diff_time;
-
-  return speed;
-}
+float calc_download_speed(http_t *info);
 
 /**
  * receive response header
@@ -489,15 +207,7 @@ float calc_download_speed(http_t *info) {
  * @ author: Changyu Liu
  * @ last modifly time: 2019.7.25
  */
-int recv_response(http_t *info) {
-  int len = 0, total_len = info->len;
-
-  if (info->chunked_flag) return recv_chunked_response(info);
-
-  if (-1 == read_data(info, total_len)) return -1;
-
-  return 0;
-}
+int recv_response(http_t *info);
 
 /**
  * Clean up all downloads
@@ -508,12 +218,7 @@ int recv_response(http_t *info) {
  * @ author: Changyu Liu
  * @ last modify time: 2019.7.30
  */
-void clean_up(http_t *info) {
-  if (info->in) fclose(info->in);
-  if (-1 != info->sock) close(info->sock);
-  if (info->save_file) fclose(info->save_file);
-  if (info) free(info);
-}
+void clean_up(http_t *info);
 
 /**
  * download file func.
@@ -527,80 +232,6 @@ void clean_up(http_t *info) {
  * @ author: Changyu Liu
  * @ last modify time: 2019.7.30
  */
-int download(const char *url, const char *save_path) {
-  http_t *info = nullptr;
-  char tmp[URI_MAX_LEN] = {0};
+int download(const char *url, const char *save_path);
 
-  if (!url || !save_path) return -1;
-
-  // Initialization structure
-  info = (http_t *) malloc(sizeof(http_t));
-  if (!info) {
-    lprintf(MSG_ERROR, "malloc failed\n");
-    return -1;
-  }
-  memset(info, 0x0, sizeof(http_t));
-  info->sock = -1;
-  info->save_path = (char *) save_path;
-
-  // resolve url
-  if (-1 == parser_URL((char *) url, info)) {
-    clean_up(info);
-    return -1;
-  }
-
-  // Connect to server
-  if (-1 == connect_server(info)) {
-    clean_up(info);
-    return -1;
-  }
-
-  // Send HTTP request message
-  if (-1 == send_request(info)) {
-    clean_up(info);
-    return -1;
-  }
-
-  // Receiving the header information of the response
-  info->in = fdopen(info->sock, "r");
-  if (!info->in) {
-    lprintf(MSG_ERROR, "fdopen error\n");
-    clean_up(info);
-    return -1;
-  }
-
-  // Analytical Head
-  if (-1 == parse_http_header(info)) {
-    clean_up(info);
-    return -1;
-  }
-  if (info->status_code == HTTP_OK) {
-    lprintf(MSG_DEBUG, "recv data now\n");
-    info->start_recv_time = time(nullptr);
-    if (-1 == recv_response(info)) {
-      clean_up(info);
-      return -1;
-    }
-
-    info->end_recv_time = time(nullptr);
-    lprintf(MSG_INFO, "Information: recv %d bytes\n", info->recv_data_len);
-    lprintf(MSG_INFO, "Information: Average download speed: %.2fKB/s\n",
-            calc_download_speed(info) / 1000);
-  } else if (info->status_code == HTTP_REDIRECT) {
-    lprintf(MSG_INFO, "Information: redirect: %s\n", info->location);
-    strncpy(tmp, info->location, URI_MAX_LEN - 1);
-    clean_up(info);
-    return download(tmp, save_path);
-  } else if (info->status_code == HTTP_NOT_FOUND) {
-    lprintf(MSG_ERROR, "Error: page not found\n");
-    clean_up(info);
-    return -1;
-  } else {
-    lprintf(MSG_WARNING, "War: not supported http code %d\n", info->status_code);
-  }
-
-  clean_up(info);
-  return 0;
-}
-
-#endif  // INCLUDE_DOWNLOAD_HPP
+#endif  // ITS_DOWNLOAD_HPP

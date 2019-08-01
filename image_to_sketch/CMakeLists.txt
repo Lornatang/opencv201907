@@ -1,8 +1,7 @@
-# minnum opencv version
-cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.12)
 
 # project name
-project(its)
+project(sketch)
 
 add_subdirectory(source/utils)
 add_subdirectory(source/main)
