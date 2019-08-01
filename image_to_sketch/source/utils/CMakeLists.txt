@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
+# project name
 project(its)
 
 # find OpenCV
@@ -10,13 +11,13 @@ include_directories(/usr/local/include/opencv4/)
 
 # make its shared library
 set(LIBRARY_OUTPUT_PATH lib)
-set(ITS
+set(ITS_UTILS
     dir.cc
     download.cc
     process.cc)
-add_library(its SHARED ${ITS})
+add_library(its SHARED ${ITS_UTILS})
 # install library
-install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION lib)
+install(TARGETS its LIBRARY DESTINATION lib)
 
 # install include
 set(INCLUDE
@@ -26,7 +27,7 @@ set(INCLUDE
 install(FILES ${INCLUDE} DESTINATION include)
 
 # load library
-target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
+target_link_libraries(its ${OpenCV_LIBS})
 # set C++17
-set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
+set_property(TARGET its PROPERTY CXX_STANDARD 17)
 

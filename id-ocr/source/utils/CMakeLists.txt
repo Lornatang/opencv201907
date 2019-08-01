@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
-project(libocr)
+project(ocr)
 
 # find OpenCV
 find_package(OpenCV REQUIRED)
@@ -14,9 +14,9 @@ set(ANGLE
     angle.cc
     format.cc
     rotation.cc )
-add_library(ocr SHARED ${ANGLE})
+add_library(${PROJECT_NAME} SHARED ${ANGLE})
 # install library to path
-install(TARGETS ocr LIBRARY DESTINATION lib)
+install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION lib)
 
 # install include to path
 set(INCLUDE
@@ -26,7 +26,7 @@ set(INCLUDE
 install(FILES ${INCLUDE} DESTINATION include)
 
 # load library
-target_link_libraries(ocr ${TORCH_LIBRARIES} ${OpenCV_LIBS})
+target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
 # set C++17
-set_property(TARGET ocr PROPERTY CXX_STANDARD 17)
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 

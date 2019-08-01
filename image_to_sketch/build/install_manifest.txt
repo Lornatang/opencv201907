@@ -1,5 +1,5 @@
-/usr/local/lib/libits.dylib
-/usr/local/include/dir.hpp
-/usr/local/include/download.hpp
-/usr/local/include/process.hpp
-/usr/local/bin/sketch
+/usr/local/dlcv/lib/libits.dylib
+/usr/local/dlcv/include/dir.hpp
+/usr/local/dlcv/include/download.hpp
+/usr/local/dlcv/include/process.hpp
+/usr/local/dlcv/bin/sketch
