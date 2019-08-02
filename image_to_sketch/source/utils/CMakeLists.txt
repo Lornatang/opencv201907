@@ -17,7 +17,12 @@ set(ITS_UTILS
     process.cc)
 add_library(its SHARED ${ITS_UTILS})
 # install library
-install(TARGETS its LIBRARY DESTINATION lib)
+# must check system os
+if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+  install(TARGETS its LIBRARY DESTINATION lib64)
+else()
+  install(TARGETS its LIBRARY DESTINATION lib)
+endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 # install include
 set(INCLUDE
@@ -26,8 +31,10 @@ set(INCLUDE
     ../../include/process.hpp)
 install(FILES ${INCLUDE} DESTINATION include)
 
-# load library
+# link opencv library
 target_link_libraries(its ${OpenCV_LIBS})
+
 # set C++17
-set_property(TARGET its PROPERTY CXX_STANDARD 17)
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
+
 

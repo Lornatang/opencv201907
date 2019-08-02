@@ -17,488 +17,245 @@
 
 #include "../../include/download.hpp"
 
-
-/**
- * Ignore Case and case.
- * Args:
- *  str: Strings to be compared
- *  sub: Original string
- * Returns:
- *  NULL
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- */
-char *strncasestr(char *str, char *sub) {
-  if (!str || !sub) return nullptr;
-
-  int len = strlen(sub);
-  if (len == 0) return nullptr;
-
-  while (*str) {
-    if (strncasecmp(str, sub, len) == 0) return str;
-    ++str;
-  }
-  return nullptr;
+void print_error(const char *message) {
+  perror(message);
+  exit(1);
 }
 
-/**
- * resolve domain.
- * Args:
- *  url: Incoming URL links
- *  info: Information parsed from incoming URL links
- * Returns:
- *  resolve success return 0, resolve false return -1
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- */
-int parser_URL(char *url, http_t *info) {
-  char *tmp = url, *start = nullptr, *end = nullptr;
-  int len = 0;
-
-  if (strncasestr(tmp, (char *) "http://"))
-    tmp += strlen("http://");
-  else if (strncasestr(tmp, (char *) "https://"))
-    tmp += strlen("https://");
-
-  start = tmp;
-  if (!(tmp = strchr(start, '/'))) return -1;
-
-  end = tmp;
-
-  // port default 80.
-  info->port = 80;
-
-  len = _MIN(end - start, HOST_NAME_LEN - 1);
-  strncpy(info->host_name, start, len);
-  info->host_name[len] = '\0';
-
-  if ((tmp = strchr(start, ':')) && tmp < end) {
-    info->port = atoi(tmp + 1);
-    if (info->port <= 0 || info->port >= 65535) return -1;
-
-    // Assignment before overwriting
-    len = _MIN(tmp - start, HOST_NAME_LEN - 1);
-    strncpy(info->host_name, start, len);
-    info->host_name[len] = '\0';
+int get_http_info(const char *host_name, HTTP_INFO *http_info) {
+  int a, b, c, d;
+  if (sscanf(host_name, "%d.%d.%d.%d", &a, &b, &c, &d) == 4) {
+    if (a >= 0x0 && a <= 0xff && b >= 0x0 && b <= 0xff && c >= 0 && c <= 0xff && d >= 0 && d <= 0xff) {
+      strcpy(http_info->ip_addr, host_name);
+      strcpy(http_info->aliases, "no aliases");
+      return 0;
+    }
   }
+  struct hostent *phost = gethostbyname(host_name);
+  if (!phost)
+    return -1;
 
-  // copy url
-  start = end;
-  strncpy(info->url, start, URI_MAX_LEN - 1);
-
+  inet_ntop(AF_INET, phost->h_addr_list[0], http_info->ip_addr, sizeof(http_info->ip_addr));
+  if (*phost->h_aliases != nullptr)
+    strcpy(http_info->aliases, phost->h_aliases[0]);
+  else
+    strcpy(http_info->aliases, "no aliases");
   return 0;
 }
 
-/**
- * resolve dns
- * Args:
- *   host_name: Domain Name Address to Resolve
- * Returns:
- *   resolve success return dns address, else return -1
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- */
-unsigned long dns(char *host_name) {
-  struct hostent *host;
-  struct in_addr addr{};
-  char **pp;
-
-  host = gethostbyname(host_name);
-  if (host == nullptr) {
-    return -1;
-  }
-
-  pp = host->h_addr_list;
-
-  if (*pp != nullptr) {
-    addr.s_addr = *((unsigned int *) *pp);
-    return addr.s_addr;
-  }
-  return 0;
+int send_http_header(int sfd, HOST_INFO host_info) {
+  char http_header[BUFSIZ];
+  bzero(http_header, sizeof(http_header));
+  sprintf(http_header, \
+      "GET %s HTTP/1.1\r\n"\
+      "Host: %s\r\n"\
+      "Connection: Keep-Alive\r\n"\
+      "Content-Type: application/octet-stream\r\n"\
+      "\r\n", host_info.file_path, host_info.host_name);
+  return write(sfd, http_header, strlen(http_header));
 }
 
-/**
- * set connect time out
- * Args:
- *   sock: Configure the connection status of Socket
- * Returns:
- *   connet success return 0, else return -1.
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- */
-int set_socket_option(int sock) {
-  struct timeval timeout{};
-
-  timeout.tv_sec = RCV_SND_TIMEOUT / 1000;
-  timeout.tv_usec = RCV_SND_TIMEOUT % 1000 * 1000;
-  // set socket is success.
-
-  // set send time out status
-  if (-1 == setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (char *) &timeout,
-                       sizeof(struct timeval))) {
-    return -1;
-  }
-
-  // set receive time out staus
-  if (-1 == setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char *) &timeout,
-                       sizeof(struct timeval))) {
-    return -1;
-  }
-
-  return 0;
-}
-
-/**
- * connet to server func
- * Args:
- *   info: Information to connect to the server.
- * Returns:
- *   connect server success return 0, else return -1
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- * */
-int connect_server(http_t *info) {
-  int sockfd;
-  struct sockaddr_in server{};
-  unsigned long addr = 0;
-  unsigned short port = info->port;
-
-  sockfd = socket(AF_INET, SOCK_STREAM, 0);
-  if (-1 == sockfd) {
-    close(sockfd);
-    return -1;
-  }
-
-  if (-1 == set_socket_option(sockfd)) {
-    close(sockfd);
-    return -1;
-  }
-
-  if ((addr = dns(info->host_name)) == -1) {
-    close(sockfd);
-    return -1;
-  }
-  memset(&server, 0, sizeof(server));
-  server.sin_family = AF_INET;
-  server.sin_port = htons(port);
-  server.sin_addr.s_addr = addr;
-
-  if (-1 ==
-      connect(sockfd, (struct sockaddr *) &server, sizeof(struct sockaddr))) {
-    close(sockfd);
-    return -1;
-  }
-
-  info->sock = sockfd;
-  return 0;
-}
-
-/**
- * Send server requests
- * Args:
- *   info: Request information byte stream
- * Returns:
- *   Send the correct request bytes to the server
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- */
-int send_request(http_t *info) {
-  memset(info->buffer, 0x0, RECV_BUF);
-  snprintf(info->buffer, RECV_BUF - 1,
-           "GET %s HTTP/1.1\r\n"
-           "Accept: */*\r\n"
-           "User-Agent: Mozilla/5.0 (compatible; MSIE 5.01; Windows NT 5.0)\r\n"
-           "Host: %s\r\n"
-           "Connection: Close\r\n\r\n",
-           info->url, info->host_name);
-
-  return send(info->sock, info->buffer, strlen(info->buffer), 0);
-}
-
-/**
- * resolve response header
- * Args:
- *   info: Check whether the server header is status information
- * Returns:
- *   resolve success return 0, else return -1.
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- */
-int parse_http_header(http_t *info) {
-  char *p = nullptr;
-
-  // resove first line
-  fgets(info->buffer, RECV_BUF, info->in);
-  p = strchr(info->buffer, ' ');
-  // check http/https is legitimate
-  if (!p || !strcasestr(info->buffer, "HTTP")) {
-    return -1;
-  }
-  info->status_code = atoi(p + 1);
-
-  // Loop Read Resolve http Header
-  while (fgets(info->buffer, RECV_BUF, info->in)) {
-    // Judging whether the head has finished reading
-    if (!strcmp(info->buffer, "\r\n")) return 0;
-
-
-    if ((p = strncasestr(info->buffer, (char *) "Content-length"))) {
-      p = strchr(p, ':');
-      p += 2;  // Skip the colon and the space behind it
-      info->len = atoi(p);
-    } else if ((p = strncasestr(info->buffer, (char *) "Transfer-Encoding"))) {
-      if ((strncasestr(info->buffer, (char *) "chunked"))) {
-        info->chunked_flag = 1;
-      } else {
-        // Unsupported Coding Transfer.
-        return -1;
+int parse_http_header(int sfd, HTTP_INFO *http_info) {
+  char buffer[BUFSIZ], temp[BUFSIZ], *ptr;
+  bzero(buffer, sizeof(buffer));
+  bzero(temp, sizeof(temp));
+  int len, n = 0;
+  while ((len = read(sfd, buffer, 1)) != 0) {
+    temp[n] = *buffer;
+    if (*buffer == '\n') {
+      ptr = strstr(temp, "HTTP/1.1");
+      if (ptr != nullptr) {
+        ptr = strchr(ptr, ' ');
+        ptr++;
+        http_info->status_code = atoi(ptr);
       }
-    } else if ((p = strncasestr(info->buffer, (char *) "Location"))) {
-      p = strchr(p, ':');
-      p += 2;  // Skip the colon and the space behind it
-      strncpy(info->location, p, URI_MAX_LEN - 1);
-    }
-  }
-  return 0;
-}
-
-/**
- * Save the content of the server response.
- * Args:
- *   info: Server connection information
- *   buf: Server buffer area
- *   len: Server buffer byte length
- * Returns:
- *   success return 0, else return -1.
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- */
-int save_data(http_t *info, const char *buf, int len) {
-  int total_len = len;
-  int write_len = 0;
-
-  // open file
-  if (!info->save_file) {
-    info->save_file = fopen(info->save_path, "w");
-    if (!info->save_file) {
-      return -1;
-    }
-  }
-
-  while (total_len) {
-    write_len = fwrite(buf, sizeof(char), len, info->save_file);
-    if (write_len < len && errno != EINTR) {
-      return -1;
-    }
-    total_len -= write_len;
-  }
-  return 0;
-}
-
-/**
- * read file data
- * Args:
- *   info: file information
- *   len: file buffer byte length
- * Returns:
- *   success return 0, else return -1
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- */
-int read_data(http_t *info, int len) {
-  int total_len = len;
-  int read_len = 0;
-  int rtn_len = 0;
-
-  while (total_len) {
-    read_len = _MIN(total_len, RECV_BUF);
-    rtn_len = fread(info->buffer, sizeof(char), read_len, info->in);
-    if (rtn_len < read_len) {
-      if (ferror(info->in)) {
-        if (errno == EINTR);
-        else if (errno == EAGAIN || errno == EWOULDBLOCK)  // time out
-        {
-          total_len -= rtn_len;
-          break;
-        } else  // other error
-        {
-          break;
-        }
-      } else  // read file end
-      {
-        total_len -= rtn_len;
+      ptr = strstr(temp, "Content-Length:");
+      if (ptr != nullptr) {
+        ptr = strchr(ptr, ':');
+        ptr++;
+        http_info->file_size = strtoul(ptr, nullptr, 10);
+      }
+      ptr = strstr(temp, "Content-Type:");
+      if (ptr != nullptr) {
+        ptr = strchr(ptr, ':');
+        ptr++;
+        strcpy(http_info->content_type, ptr);
+        http_info->content_type[strlen(ptr) - 1] = '\0';
+      }
+      if (temp[0] == '\r' && temp[1] == '\n')
         break;
-      }
+      bzero(temp, sizeof(temp));
+      n = -1;
+    }
+    n++;
+  }
+  return sfd;
+}
+
+int connect_server(const char *ip_addr, unsigned short port) {
+  int sfd = socket(AF_INET, SOCK_STREAM, 0);
+  if (sfd == -1)
+    print_error("socket");
+
+  struct sockaddr_in serv_addr;
+  serv_addr.sin_family = AF_INET;
+
+  serv_addr.sin_port = htons(port);
+
+  int ret = inet_pton(AF_INET, ip_addr, &serv_addr.sin_addr.s_addr);
+  if (ret == -1)
+    print_error("inet_pton");
+
+  int flags = fcntl(sfd, F_GETFL, 0);
+
+  flags |= O_NONBLOCK;
+  fcntl(sfd, F_SETFL, flags);
+
+  ret = connect(sfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+  if (ret != 0 && errno == EINPROGRESS) {
+    printf("connecting server,please wait for 10 seconds\n");
+    struct pollfd pfd;
+    socklen_t optlen;
+    int optval, timeout = 10 * 1000;
+    pfd.fd = sfd;
+    pfd.events = POLLOUT;
+
+    if ((ret = poll(&pfd, 1, timeout)) == 1) {
+      optlen = sizeof(optval);
+      ret = getsockopt(sfd, SOL_SOCKET, SO_ERROR, &optval, &optlen);
+      errno = optval;
+      ret = optval == 0 ? 0 : -1;
+      if (!ret)
+        printf("connection %s\n", strerror(errno));
+    } else if (!ret) {
+      errno = ETIMEDOUT;
+      ret = -1;
+    } else
+      print_error("poll failed");
+  }
+  flags &= ~O_NONBLOCK;
+  fcntl(sfd, F_SETFL, flags);
+  return ret == -1 ? -1 : sfd;
+}
+
+//void print_progress_bar(const char *file_name, float sum, float file_size) {
+//  float percent = (sum / file_size) * 100;
+//  char *sign = "#";
+//  if ((int) percent != 0) {
+//    sign = (char *) malloc((int) percent + 1);
+//    strncpy(sign, "####################################################", (int) percent);
+//  }
+//  printf("%s %7.2f%% [%-*.*s] %.2f/%.2f mb\r", file_name, percent, 50, (int) percent / 2, sign, sum / 1024.0 / 1024.0,
+//         file_size / 1024.0 / 1024.0);
+//  if ((int) percent != 0)
+//    free(sign);
+//  fflush(stdout);
+//}
+
+unsigned long download(int sfd, HOST_INFO host_info, HTTP_INFO http_info) {
+  umask(0111);
+  int len;
+  unsigned long sum = 0;
+  char buffer[BUFSIZ] = {0};
+  int fd = open(host_info.new_name, O_CREAT | O_WRONLY | O_TRUNC, 0777);
+  if (fd == -1)
+    print_error("open");
+  while ((len = read(sfd, buffer, sizeof(buffer))) > 0) {
+    write(fd, buffer, len);
+    sum += len;
+    // print_progress_bar(host_info.new_name, (float) sum, (float) http_info.file_size);
+    if (http_info.file_size == sum) {
+      printf("\n");
+      break;
+    }
+  }
+  close(fd);
+  close(sfd);
+  return sum;
+}
+
+void parse_http_url(char *url, HOST_INFO *host_info) {
+  const char *protocol[] = {"http://", "https://", nullptr};
+  int i, len = 0;
+
+  for (i = 0; protocol[i] != nullptr; i++)
+    if (!strncmp(url, protocol[i], strlen(protocol[i]))) {
+      len = strlen(protocol[i]);
+      break;
     }
 
-    total_len -= rtn_len;
-    if (-1 == save_data(info, info->buffer, rtn_len)) {
-      return -1;
+
+  char *ptr = strchr(url + len, ':');
+  if (ptr != nullptr) {
+    strncpy(host_info->host_name, url + len, strlen(url + len) - strlen(ptr));
+    sscanf(++ptr, "%5hu", &host_info->port);
+    if (host_info->port > 65535) {
+      printf("invalid port\n");
+      exit(1);
     }
-    info->recv_data_len += rtn_len;
+    while (*ptr != '/')
+      ptr++;
+    strcpy(host_info->file_path, ptr);
+    ptr = strrchr(host_info->file_path, '/');
+    ptr++;
+    strcpy(host_info->new_name, ptr);
+  } else {
+    ptr = strchr(url + len, '/');
+    strncpy(host_info->host_name, url + len, strlen(url + len) - strlen(ptr));
+    host_info->port = 80;
+    strcpy(host_info->file_path, ptr);
+    ptr = strrchr(host_info->file_path, '/');
+    ptr++;
+    strcpy(host_info->new_name, ptr);
   }
-  if (total_len != 0) {
-    return -1;
-  }
-  return 0;
 }
 
-/**
- * Chunked data sent back by receiving server
- * Args:
- *   info: Chunked data info
- * Returns:
- *   success return 0, else return -1
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- */
-int recv_chunked_response(http_t *info) {
-  long part_len;
-
-  do {
-    // Get the length of this section
-    fgets(info->buffer, RECV_BUF, info->in);
-    part_len = strtol(info->buffer, nullptr, 16);
-    if (-1 == read_data(info, part_len)) return -1;
-
-    // Read the r\n characters behind
-    if (2 != fread(info->buffer, sizeof(char), 2, info->in)) {
-      return -1;
-    }
-  } while (part_len);
-  return 0;
+unsigned long get_file_size(const char *file_name) {
+  struct stat buf{};
+  if (stat(file_name, &buf) == -1)
+    return 0;
+  else
+    return buf.st_size;
 }
 
-/**
- * Calculate average download speed
- * Args:
- *   info: download file data info
- * Returns:
- *   success return 0, else return -1
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- */
-float calc_download_speed(http_t *info) {
-  int diff_time = 0;
-  float speed = 0.0;
+int download(char *url, char *fileName) {
+  bzero(&host_info, sizeof(host_info));
+  bzero(&http_info, sizeof(http_info));
+  parse_http_url(url, &host_info);
 
-  diff_time = info->end_recv_time - info->start_recv_time;
-  /* 最小间隔1s，避免计算浮点数结果为inf */
-  if (0 == diff_time) diff_time = 1;
-  speed = (float) info->recv_data_len / (float) diff_time;
+  if (fileName != nullptr)
+    strcpy(host_info.new_name, fileName);
 
-  return speed;
-}
+  if (get_http_info(host_info.host_name, &http_info) == -1)
+    print_error("gethostbyname");
 
-/**
- * receive response header
- * Args:
- *   info: header data info
- * Returns:
- *  success return 0, else return -1
- * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
- */
-int recv_response(http_t *info) {
-  int total_len = info->len;
+  int sfd = connect_server(http_info.ip_addr, host_info.port);
+  if (sfd == -1)
+    print_error("connect failed");
+  printf("waiting for http response\n");
+  int ret = send_http_header(sfd, host_info);
+  if (ret == -1)
+    print_error("write");
 
-  if (info->chunked_flag) return recv_chunked_response(info);
+  sfd = parse_http_header(sfd, &http_info);
 
-  if (-1 == read_data(info, total_len)) return -1;
+  printf("http response:\n\tstatus code: %d\n", http_info.status_code);
+  printf("\thost: %s:%hu\n", http_info.ip_addr, host_info.port);
+  printf("\taliases: %s\n", http_info.aliases);
+  printf("\tcontent-type:%s\n", http_info.content_type);
+  if (http_info.file_size > 1024 * 1024)
+    printf("\tcontent-length: %.2f mb\n", (float) http_info.file_size / 1024.0 / 1024.0);
+  else
+    printf("\tcontent-length: %lu bytes\n", http_info.file_size);
 
-  return 0;
-}
+  if (http_info.status_code != 200)
+    printf("warning:not found file %s\n", host_info.new_name);
 
-/**
- * Clean up all downloads
- * Args:
- *   info: header data info
- * Returns:
- *   success return 0, else return -1
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- */
-void clean_up(http_t *info) {
-  if (info->in) fclose(info->in);
-  if (-1 != info->sock) close(info->sock);
-  if (info->save_file) fclose(info->save_file);
-  free(info);
-}
-
-/**
- * download file func.
- * Args:
- *   url: Video Link Address
- *   save_path: Video File Save Address
- * Returns:
- *   success return 0, else return -1
- * Example:
- *   ./download https://www.baidu.com baidu.txt
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- */
-int download(const char *url, const char *save_path) {
-  http_t *info = nullptr;
-  char tmp[URI_MAX_LEN] = {0};
-
-  if (!url || !save_path) return -1;
-
-  // Initialization structure
-  info = (http_t *) malloc(sizeof(http_t));
-  if (!info) {
-    return -1;
+  unsigned long download_size = download(sfd, host_info, http_info);
+  unsigned long file_size = get_file_size(host_info.new_name);
+  if (download_size != file_size) {
+    printf("download %s failure\n", host_info.new_name);
+    remove(host_info.new_name);
   }
-  memset(info, 0x0, sizeof(http_t));
-  info->sock = -1;
-  info->save_path = (char *) save_path;
-
-  // resolve url
-  if (-1 == parser_URL((char *) url, info)) {
-    clean_up(info);
-    return -1;
-  }
-
-  // Connect to server
-  if (-1 == connect_server(info)) {
-    clean_up(info);
-    return -1;
-  }
-
-  // Send HTTP request message
-  if (-1 == send_request(info)) {
-    clean_up(info);
-    return -1;
-  }
-
-  // Receiving the header information of the response
-  info->in = fdopen(info->sock, "r");
-  if (!info->in) {
-    clean_up(info);
-    return -1;
-  }
-
-  // Analytical Head
-  if (-1 == parse_http_header(info)) {
-    clean_up(info);
-    return -1;
-  }
-  if (info->status_code == HTTP_OK) {
-    info->start_recv_time = time(nullptr);
-    if (-1 == recv_response(info)) {
-      clean_up(info);
-      return -1;
-    }
-
-    info->end_recv_time = time(nullptr);
-  } else if (info->status_code == HTTP_REDIRECT) {
-    strncpy(tmp, info->location, URI_MAX_LEN - 1);
-    clean_up(info);
-    return download(tmp, save_path);
-  } else if (info->status_code == HTTP_NOT_FOUND) {
-    clean_up(info);
-    return -1;
-  }
-
-  clean_up(info);
   return 0;
 }

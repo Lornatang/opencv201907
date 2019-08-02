@@ -17,221 +17,67 @@
 /**
  * Image download function header file.
  * @author: Changyu Liu
- * @last modify time: 2019.8.1
+ * @last modify time: 2019.8.2
  */
 
 #ifndef ITS_DOWNLOAD_HPP
 #define ITS_DOWNLOAD_HPP
 
-#define HOST_NAME_LEN     256
-#define URI_MAX_LEN       2048
-#define RECV_BUF          8192
-
-#define RCV_SND_TIMEOUT (10 * 1000)
-
-#define MSG_DEBUG   0x01
-#define MSG_INFO    0x02
-#define MSG_WARNING 0x03
-#define MSG_ERROR   0x04
-
-#define _MIN(x, y) ((x) > (y) ? (y) : (x))
-
-#define HTTP_OK         200
-#define HTTP_REDIRECT   302
-#define HTTP_NOT_FOUND  404
-
-#include <arpa/inet.h>
-#include <cerrno>
-#include <fcntl.h>
-#include <netdb.h>
-#include <cstdio>
-#include <stdlib.h>
-#include <cstdlib>
-#include <cstring>
-#include <sys/socket.h>
-#include <sys/types.h>
+#include <sys/ioctl.h>
+#include <poll.h>
 #include <ctime>
+#include <sys/socket.h>
+#include <cctype>
+#include <signal.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <netdb.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <arpa/inet.h>
 #include <unistd.h>
+#include <netinet/in.h>
+#include <sys/types.h>
+#include <strings.h>
+#include <cstring>
+#include <cerrno>
 
-typedef struct {
-  int sock;  // Socket Communicating with Server
-  FILE *in;  // Sock descriptor to file pointer, easy to read and write
-  char host_name[HOST_NAME_LEN];
-  int port;
-  char url[URI_MAX_LEN];
-  char buffer[RECV_BUF];
+typedef struct HTTP_INFO {
+  unsigned long file_size;
+  char content_type[256];
+  char ip_addr[INET_ADDRSTRLEN];
+  char aliases[256];
   int status_code;
-  int chunked_flag;
-  int len;
-  char location[URI_MAX_LEN];
-  char *save_path;
-  FILE *save_file;
-  int recv_data_len;
-  time_t start_recv_time;
-  time_t end_recv_time;
-} http_t;
+} HTTP_INFO;
 
+typedef struct HOST_INFO {
+  char host_name[256];
+  char file_path[1024];
+  unsigned short port;
+  char new_name[256];
+} HOST_INFO;
 
-/**
- * Ignore Case and case.
- * Args:
- *  str: Strings to be compared
- *  sub: Original string
- * Returns:
- *  NULL
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- */
-char *strncasestr(char *str, char *sub);
+HOST_INFO host_info;
+HTTP_INFO http_info;
 
-/**
- * resolve domain.
- * Args:
- *  url: Incoming URL links
- *  info: Information parsed from incoming URL links
- * Returns:
- *  resolve success return 0, resolve false return -1
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- */
-int parser_URL(char *url, http_t *info);
+void print_error(const char *message);
 
-/**
- * resolve dns
- * Args:
- *   host_name: Domain Name Address to Resolve
- * Returns:
- *   resolve success return dns address, else return -1
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- */
-unsigned long dns(char *host_name);
+int get_http_info(const char *host_name, HTTP_INFO *http_info);
 
-/**
- * set connect time out
- * Args:
- *   sock: Configure the connection status of Socket
- * Returns:
- *   connet success return 0, else return -1.
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- */
-int set_socket_option(int sock);
+int send_http_header(int sfd, HOST_INFO host_info);
 
-/**
- * connet to server func
- * Args:
- *   info: Information to connect to the server.
- * Returns:
- *   connect server success return 0, else return -1
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- * */
-int connect_server(http_t *info);
+int parse_http_header(int sfd, HTTP_INFO *http_info);
 
-/**
- * Send server requests
- * Args:
- *   info: Request information byte stream
- * Returns:
- *   Send the correct request bytes to the server
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- */
-int send_request(http_t *info);
+int connect_server(const char *ip_addr, unsigned short port);
 
-/**
- * resolve response header
- * Args:
- *   info: Check whether the server header is status information
- * Returns:
- *   resolve success return 0, else return -1.
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- */
-int parse_http_header(http_t *info);
+// void print_progress_bar(const char *file_name, float sum, float file_size);
 
-/**
- * Save the content of the server response.
- * Args:
- *   info: Server connection information
- *   buf: Server buffer area
- *   len: Server buffer byte length
- * Returns:
- *   success return 0, else return -1.
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- */
-int save_data(http_t *info, const char *buf, int len);
+unsigned long download(int sfd, HOST_INFO host_info, HTTP_INFO http_info);
 
-/**
- * read file data
- * Args:
- *   info: file information
- *   len: file buffer byte length
- * Returns:
- *   success return 0, else return -1
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- */
-int read_data(http_t *info, int len);
+void parse_http_url(char *url, HOST_INFO *host_info);
 
-/**
- * Chunked data sent back by receiving server
- * Args:
- *   info: Chunked data info
- * Returns:
- *   success return 0, else return -1
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- */
-int recv_chunked_response(http_t *info);
+unsigned long get_file_size(const char *file_name);
 
-/**
- * Calculate average download speed
- * Args:
- *   info: download file data info
- * Returns:
- *   success return 0, else return -1
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- */
-float calc_download_speed(http_t *info);
-
-/**
- * receive response header
- * Args:
- *   info: header data info
- * Returns:
- *  success return 0, else return -1
- * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
- */
-int recv_response(http_t *info);
-
-/**
- * Clean up all downloads
- * Args:
- *   info: header data info
- * Returns:
- *   success return 0, else return -1
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- */
-void clean_up(http_t *info);
-
-/**
- * download file func.
- * Args:
- *   url: Video Link Address
- *   save_path: Video File Save Address
- * Returns:
- *   success return 0, else return -1
- * Example:
- *   ./download https://www.baidu.com baidu.txt
- * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
- */
-int download(const char *url, const char *save_path);
+int download(char *url, char *fileName);
 
 #endif  // ITS_DOWNLOAD_HPP

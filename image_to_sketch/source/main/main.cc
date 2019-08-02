@@ -21,11 +21,23 @@
 using namespace cv;
 using namespace std;
 
+static void help() {
+  cout << "The program is image transfer sketch style.";
+  cout << endl;
+  cout << "Example:\n"
+          "\tsketch www.xxxx.com raw.png sketch.png";
+  cout << endl;
+}
+
 int main(int argc, const char *argv[]) {
-  Mat image = imread(argv[1], 0);
-  download(argv[1], argv[2]);
-  Mat newImage = imageToSketch(argv[2]);
-  imshow("image", newImage);
-  waitKey(0);
+  if (argc < 4) {
+    help();
+    return -1;
+  }
+
+  download((char *)argv[1], (char *)argv[2]);
+  Mat image = imread(argv[2], 0);
+  Mat sketch = imageToSketch(argv[2]);
+  imwrite(argv[3], sketch);
   return 0;
 }
