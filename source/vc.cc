@@ -25,9 +25,17 @@ using namespace cv;
 static void help() {
   cout << "\nThe program is extract video beautiful cover.\n\n"
           "Usage:\n"
-          "  utils [url] [video_name] [video_dir] [smile_path]\n"
+          "  vc [url] [video_name] [video_dir] [smile_path]\n"
           "Example:\n"
-          "  utils http://pic33.nipic.com/20131007/13639685_123501617185_2.jpg 1.jpg 2.jpg\n\n";
+          "  vc https://apd-8a4572ab0afe85c93b0e4877c5df81cc.v.smtcdns.com/"
+          "om.tc.qq.com/AHKbD-BmXB-ra-Aps7tRHbbfeRt8BQsuLEkYIt6Vs9h0/uwMROf"
+          "z2r5zEIaQXGdGnC2dfJ7xlHUZLN7WLSNBHzUj-9W46/k0660momfpn.p712.1.mp4"
+          "?sdtfrom=v1010&guid=51b813b2e8d8ad0a480e1e104d15fccf&vkey=9E5CF93"
+          "8961E74F9A9D2EB05E4E07C0DF27EA6A09DBE7832CCA375172F90638455DD5667"
+          "EA2A0A7FD28F14DEB322FE0D8D1A2DF77910EE8E274D5894ECA4AA60767359F47"
+          "845F81BB8820B9AD5512A34CFA37D75D1B5F956F3B4A9F15BBDC1E72546FD18CD"
+          "1C5F8B6905181D6775D3E64332E8658E964A288792F669F66E33F9 video.mp4 "
+          "video smile.png\n\n";
 }
 
 int main(int argc, const char *argv[]) {

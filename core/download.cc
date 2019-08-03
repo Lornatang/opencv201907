@@ -15,7 +15,7 @@
  */
 
 #include "dlcv/log.hpp"
-#include "../include/download.hpp"
+#include "dlcv/download.hpp"
 
 using namespace std;
 
@@ -29,17 +29,18 @@ using namespace std;
  * @ author: Changyu Liu
  * @ time: 2019.8.2
  */
-char *strncasestr(char *str, const char *sub) {
-  if (!str || !sub) return nullptr;
+char *strncasestr(char *str, char *sub) {
+  if (!str || !sub) return NULL;
 
   int len = strlen(sub);
-  if (len == 0) return nullptr;
+  if (len == 0) return NULL;
 
   while (*str) {
-    if (strncasecmp(str, sub, len) == 0) return str;
+    if (strncasecmp(str, sub, len) == 0)
+      return str;
     ++str;
   }
-  return nullptr;
+  return NULL;
 }
 
 /**
@@ -57,9 +58,9 @@ int parser_URL(char *url, http_t *info) {
   int len = 0;
 
   /* 跳过http:// */
-  if (strncasestr(tmp, "http://"))
+  if (strncasestr(tmp, (char *)"http://"))
     tmp += strlen("http://");
-  else if (strncasestr(tmp, "https://"))
+  else if (strncasestr(tmp, (char *)"https://"))
     tmp += strlen("https://");
 
   start = tmp;
@@ -92,7 +93,7 @@ int parser_URL(char *url, http_t *info) {
   start = end;
   strncpy(info->url, start, URI_MAX_LEN - 1);
 
-  lprintf(MSG_INFO, "parse url ok\nhost:%s, port:%d, uri:%s\n",
+  lprintf(MSG_INFO, "parse url ok\nhost:%s, port:%d, url:%s\n",
           info->host_name, info->port, info->url);
   return 0;
 }
@@ -231,7 +232,6 @@ int send_request(http_t *info) {
            "Connection: Close\r\n\r\n",
            info->url, info->host_name);
 
-  lprintf(MSG_DEBUG, "request:\n%s\n", info->buffer);
   return send(info->sock, info->buffer, strlen(info->buffer), 0);
 }
 
@@ -247,10 +247,10 @@ int send_request(http_t *info) {
 int parse_http_header(http_t *info) {
   char *p = NULL;
 
-  // resove first line
+  // 解析第一行
   fgets(info->buffer, RECV_BUF, info->in);
   p = strchr(info->buffer, ' ');
-  // check http/https is legitimate
+  //简单检查http头第一行是否合法
   if (!p || !strcasestr(info->buffer, "HTTP")) {
     lprintf(MSG_ERROR, "bad http head\n");
     return -1;
@@ -258,23 +258,24 @@ int parse_http_header(http_t *info) {
   info->status_code = atoi(p + 1);
   lprintf(MSG_DEBUG, "http status code: %d\n", info->status_code);
 
-  // Loop Read Resolve http Header
+  // 循环读取解析http头
   while (fgets(info->buffer, RECV_BUF, info->in)) {
-    // Judging whether the head has finished reading
-    if (!strcmp(info->buffer, "\r\n")) return 0;
-
+    // 判断头部是否读完
+    if (!strcmp(info->buffer, "\r\n")) {
+      return 0;   /* 头解析正常 */
+    }
     lprintf(MSG_DEBUG, "%s", info->buffer);
-
-    if ((p = strncasestr(info->buffer, (char *) "Content-length"))) {
+    if ((p = strncasestr(info->buffer, (char *)"Content-length"))) {
       p = strchr(p, ':');
-      p += 2;  // Skip the colon and the space behind it
+      p += 2;     // 跳过冒号和后面的空格
       info->len = atoi(p);
       lprintf(MSG_INFO, "Content-length: %d\n", info->len);
-    } else if ((p = strncasestr(info->buffer, (char *) "Transfer-Encoding")) != nullptr) {
-      if ((strncasestr(info->buffer, (char *) "chunked"))) {
+      // return -1;
+    } else if ((p = strncasestr(info->buffer, (char *)"Transfer-Encoding")) != nullptr) {
+      if (strncasestr(info->buffer, (char *)"chunked")) {
         info->chunked_flag = 1;
       } else {
-        // Unsupported Coding Transfer.
+        /* 不支持其他编码的传送方式 */
         lprintf(MSG_ERROR, "Not support %s", info->buffer);
         return -1;
       }
@@ -282,15 +283,17 @@ int parse_http_header(http_t *info) {
     } else {
       if ((p = strncasestr(info->buffer, (char *) "Location"))) {
         p = strchr(p, ':');
-        p += 2;  // Skip the colon and the space behind it
+        p += 2;     // 跳过冒号和后面的空格
         strncpy(info->location, p, URI_MAX_LEN - 1);
         lprintf(MSG_INFO, "Location: %s\n", info->location);
+        return -1;
       }
     }
   }
-  lprintf(MSG_ERROR, "bad http/https head\n");
-  return -1;
+  lprintf(MSG_ERROR, "bad http head\n");
+  return -1;  /* 头解析出错 */
 }
+
 
 /**
  * Save the content of the server response.
@@ -370,7 +373,6 @@ int read_data(http_t *info, int len) {
     }
 
     total_len -= rtn_len;
-    lprintf(MSG_DEBUG, "read len: %d\n", rtn_len);
     if (-1 == save_data(info, info->buffer, rtn_len)) {
       return -1;
     }
@@ -476,10 +478,10 @@ void clean_up(http_t *info) {
  *   success return 0, else return -1
  * Example:
  *   ./download https://www.baidu.com baidu.txt
- * @ author: Changyu Liu
- * @ last modify time: 2019.8.2
+ * @author: Changyu Liu
+ * @last modify time: 2019.8.2
  */
-int download(char *url, char *save_path) {
+int download_image(char *url, char *save_path) {
   printf("start download!\n");
   http_t *info = nullptr;
   char tmp[URI_MAX_LEN] = {0};
@@ -502,43 +504,54 @@ int download(char *url, char *save_path) {
 
   // resolve url
   if (-1 == parser_URL(url, info)) {
-    printf("parer url error!\n");
+    lprintf(MSG_ERROR, "parser url error!\n");
     clean_up(info);
     return -1;
-  }
+  } else
+    lprintf(MSG_INFO, "parser url successful!\n");
 
   // Connect to server
   if (-1 == connect_server(info)) {
+    lprintf(MSG_ERROR, "connect server error.\n");
     clean_up(info);
     return -1;
-  }
+  } else
+    lprintf(MSG_INFO, "connect server successful.\n");
 
   // Send HTTP request message
   if (-1 == send_request(info)) {
+    lprintf(MSG_ERROR, "send http requests message error.\n");
     clean_up(info);
     return -1;
-  }
+  } else
+    lprintf(MSG_INFO, "send http requests message successful.\n");
 
   // Receiving the header information of the response
   info->in = fdopen(info->sock, "r");
   if (!info->in) {
-    lprintf(MSG_ERROR, "fdopen error\n");
+    lprintf(MSG_ERROR, "Receiving the header information error.\n");
     clean_up(info);
     return -1;
-  }
+  } else
+    lprintf(MSG_INFO, "Receiving the header information successful.\n");
 
   // Analytical Head
   if (-1 == parse_http_header(info)) {
+    lprintf(MSG_ERROR, "parse http header error.\n");
     clean_up(info);
     return -1;
-  }
+  } else
+    lprintf(MSG_INFO, "parse http header successful.\n");
+
   if (info->status_code == HTTP_OK) {
     lprintf(MSG_DEBUG, "recv data now\n");
     info->start_recv_time = time(0);
     if (-1 == recv_response(info)) {
+      lprintf(MSG_ERROR, "recv response error.\n");
       clean_up(info);
       return -1;
-    }
+    } else
+      lprintf(MSG_INFO, "recv response successful.\n");
 
     info->end_recv_time = time(nullptr);
     lprintf(MSG_INFO, "recv %d bytes\n", info->recv_data_len);
@@ -562,7 +575,16 @@ int download(char *url, char *save_path) {
   return 0;
 }
 
-int main(int argc, const char *argv[]) {
-  download((char *) argv[1], (char *) argv[2]);
-  return 0;
+/**
+ * copy data to a file.
+ * Args:
+ *   ptr:
+ * Returns:
+ * @author: Changyu Liu
+ * @last modify time: 2019.8.3
+ */
+size_t writeData(void * ptr,size_t size,size_t nmemb,FILE * stream)
+{
+  int written  = fwrite(ptr,size,nmemb,stream);
+  return written;
 }

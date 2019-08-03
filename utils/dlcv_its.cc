@@ -15,7 +15,7 @@
  */
 
 
-#include "../include/dlcv_its.hpp"
+#include "dlcv/dlcv_its.hpp"
 
 using namespace cv;
 using namespace std;

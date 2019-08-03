@@ -48,6 +48,8 @@
 #include <unistd.h>
 #include <iostream>
 
+#include "curl/curl.h"
+
 #include "dlcv/log.hpp"
 
 typedef struct {
@@ -61,7 +63,7 @@ typedef struct {
   int chunked_flag;
   int len;
   char location[URI_MAX_LEN];
-  const char *save_path;
+  char *save_path;
   FILE *save_file;
   int recv_data_len;
   time_t start_recv_time;
@@ -78,7 +80,7 @@ typedef struct {
  * @ author: Changyu Liu
  * @ time: 2019.7.25
  */
-char *strncasestr(char *str, const char *sub);
+char *strncasestr(char *str, char *sub);
 
 /**
  * resolve domain.
@@ -228,6 +230,8 @@ void clean_up(http_t *info);
  * @ author: Changyu Liu
  * @ last modify time: 2019.8.2
  */
-int download(char *url, char *save_path);
+int download_image(char *url, char *save_path);
+
+CURLcode download_file(char *url, char *fileName);
 
 #endif  // DLCV_DOWNLOAD_HPP

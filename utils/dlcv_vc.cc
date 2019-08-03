@@ -82,4 +82,5 @@ int saveSmile(const String &videoDir, const String &smilePath) {
 
     if (!smiles.empty()) imwrite(smilePath, image);
   }
+  return 0;
 }
