@@ -57,6 +57,10 @@ int main(int argc, const char *argv[]) {
     cerr << "create video dir error, please check permissions!" << endl;
     return -2;
   }
+  if (__mkdir__("static") == -1) {
+    cerr << "create smile dir error, please check permissions!" << endl;
+    return -2;
+  }
 
   if (video_to_image(videoName, videoDir) == -1) {
     cerr << "video transfer image error, please check video exists!" << endl;
