@@ -14,18 +14,10 @@
  * ==============================================================================
  */
 
-#ifndef INCLUDE_PROCESS_HPP
-#define INCLUDE_PROCESS_HPP
-
-#include <cstdio>
-#include <cstdlib>
-#include "core.hpp"
-#include "highgui.hpp"
+#include "dlcv_vc.hpp"
 
 using namespace cv;
 using namespace std;
-
-const string suffix_png = ".png";
 
 /**
  * Divide video file into several consecutive frames.
@@ -35,7 +27,7 @@ const string suffix_png = ".png";
  * Returns:
  *   success return 0, else return -1
  * @ author: Changyu Liu
- * @ last modify time: 2019.7.30
+ * @ last modify time: 2019.8.2
  */
 int video_to_image(const char *video_name, const char *dir_name) {
   int frame_cnt = 0;
@@ -43,7 +35,10 @@ int video_to_image(const char *video_name, const char *dir_name) {
   Mat img;
 
   VideoCapture cap(video_name);
-  if (!cap.isOpened()) perror("Open video file failed!\n");
+  if (!cap.isOpened()) {
+    cerr << "open video error! please check video exists!" << endl;
+    return -1;
+  }
 
   bool flag = true;
   while (flag) {
@@ -52,7 +47,7 @@ int video_to_image(const char *video_name, const char *dir_name) {
 
     if (frame_cnt % 20 == 0) {
       ++num;
-      String img_path = dir_name + to_string(num) + suffix_png;
+      String img_path = dir_name + to_string(num) + ".png";
       imwrite(img_path, img);
     }
     ++frame_cnt;
@@ -61,4 +56,12 @@ int video_to_image(const char *video_name, const char *dir_name) {
   return 0;
 }
 
-#endif  // INCLUDE_PROCESS_HPP
+vector<Rect> detectSmile(Mat &faces) {
+  CascadeClassifier smileCascade;
+  vector<Rect> smiles;
+  smileCascade.load(
+          "/usr/local/share/opencv4/haarcascades/haarcascade_smile.xml");
+  smileCascade.detectMultiScale(faces, smiles, 1.1, 2, 0 | CASCADE_SCALE_IMAGE,
+                                Size(30, 30));
+  return smiles;
+}

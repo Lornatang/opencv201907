@@ -20,8 +20,8 @@
  * @last modify time: 2019.8.2
  */
 
-#ifndef ITS_DOWNLOAD_HPP
-#define ITS_DOWNLOAD_HPP
+#ifndef DLCV_DOWNLOAD_HPP
+#define DLCV_DOWNLOAD_HPP
 
 #define HOST_NAME_LEN 256
 #define URI_MAX_LEN 2048
@@ -44,15 +44,15 @@ static int print_level = /*MSG_DEBUG |*/ MSG_INFO | MSG_ERROR;
 #endif  // INCLUDE_PRINT_LEVEL
 
 #include <arpa/inet.h>
-#include <errno.h>
+#include <cerrno>
 #include <fcntl.h>
 #include <netdb.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <time.h>
+#include <ctime>
 #include <unistd.h>
 
 #include "log.hpp"
@@ -68,7 +68,7 @@ typedef struct {
   int chunked_flag;
   int len;
   char location[URI_MAX_LEN];
-  char *save_path;
+  const char *save_path;
   FILE *save_file;
   int recv_data_len;
   time_t start_recv_time;
@@ -85,7 +85,7 @@ typedef struct {
  * @ author: Changyu Liu
  * @ time: 2019.7.25
  */
-char *strncasestr(char *str, char *sub);
+char *strncasestr(char *str, const char *sub);
 
 /**
  * resolve domain.
@@ -233,8 +233,8 @@ void clean_up(http_t *info) ;
  * Example:
  *   ./download https://www.baidu.com baidu.txt
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modify time: 2019.8.2
  */
-int download(const char *url, const char *save_path);
+int download(char *url, char *save_path);
 
-#endif  // ITS_DOWNLOAD_HPP
+#endif  // DLCV_DOWNLOAD_HPP

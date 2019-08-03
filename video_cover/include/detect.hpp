@@ -84,7 +84,6 @@ void saveFaces(Mat img, Mat img_gray) {
 void drawFaces(Mat img, vector<Rect> faces) {
   namedWindow("draw faces");
   for (size_t i = 0; i < faces.size(); i++) {
-    // 先确定人脸矩形中心坐标,再根据该坐标画椭圆
     Point center(faces[i].x + faces[i].width / 2,
                  faces[i].y + faces[i].height / 2);
     ellipse(img, center, Size(faces[i].width / 2, faces[i].height / 1.5), 0, 0,

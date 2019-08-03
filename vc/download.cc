@@ -15,7 +15,7 @@
  */
 
 
-#include "../../include/download.hpp"
+#include "download.hpp"
 
 /**
  * Ignore Case and case.
@@ -25,7 +25,7 @@
  * Returns:
  *  NULL
  * @ author: Changyu Liu
- * @ time: 2019.7.25
+ * @ time: 2019.8.2
  */
 char *strncasestr(char *str, char *sub) {
   if (!str || !sub) return NULL;
@@ -48,7 +48,7 @@ char *strncasestr(char *str, char *sub) {
  * Returns:
  *  resolve success return 0, resolve faile return -1
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  */
 int parser_URL(char *url, http_t *info) {
   char *tmp = url, *start = NULL, *end = NULL;
@@ -97,7 +97,7 @@ int parser_URL(char *url, http_t *info) {
  * Returns:
  *   resolve success return dns address, else return -1
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  */
 unsigned long dns(char *host_name) {
   struct hostent *host;
@@ -129,7 +129,7 @@ unsigned long dns(char *host_name) {
  * Returns:
  *   connet success return 0, else return -1.
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  */
 int set_socket_option(int sock) {
   struct timeval timeout;
@@ -163,7 +163,7 @@ int set_socket_option(int sock) {
  * Returns:
  *   connect server success return 0, else return -1
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  * */
 int connect_server(http_t *info) {
   int sockfd;
@@ -211,7 +211,7 @@ int connect_server(http_t *info) {
  * Returns:
  *   Send the correct request bytes to the server
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  */
 int send_request(http_t *info) {
   int len;
@@ -236,7 +236,7 @@ int send_request(http_t *info) {
  * Returns:
  *   resolve success return 0, else return -1.
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  */
 int parse_http_header(http_t *info) {
   char *p = NULL;
@@ -293,7 +293,7 @@ int parse_http_header(http_t *info) {
  * Returns:
  *   success return 0, else return -1.
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  */
 int save_data(http_t *info, const char *buf, int len) {
   int total_len = len;
@@ -327,7 +327,7 @@ int save_data(http_t *info, const char *buf, int len) {
  * Returns:
  *   success return 0, else return -1
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  */
 int read_data(http_t *info, int len) {
   int total_len = len;
@@ -383,7 +383,7 @@ int read_data(http_t *info, int len) {
  * Returns:
  *   success return 0, else return -1
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  */
 int recv_chunked_response(http_t *info) {
   long part_len;
@@ -411,7 +411,7 @@ int recv_chunked_response(http_t *info) {
  * Returns:
  *   success return 0, else return -1
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  */
 float calc_download_speed(http_t *info) {
   int diff_time = 0;
@@ -432,7 +432,7 @@ float calc_download_speed(http_t *info) {
  * Returns:
  *  success return 0, else return -1
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  */
 int recv_response(http_t *info) {
   int len = 0, total_len = info->len;
@@ -451,7 +451,7 @@ int recv_response(http_t *info) {
  * Returns:
  *   success return 0, else return -1
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  */
 void clean_up(http_t *info) {
   if (info->in) fclose(info->in);
@@ -470,7 +470,7 @@ void clean_up(http_t *info) {
  * Example:
  *   ./download https://www.baidu.com baidu.txt
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  */
 int download(const char *url, const char *save_path) {
   http_t *info = NULL;

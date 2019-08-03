@@ -14,30 +14,21 @@
  * ==============================================================================
  */
 
-#include "../../include/dir.hpp"
-#include "../../include/download.hpp"
-#include "../../include/process.hpp"
+#include "dlcv/download.hpp"
+#include "dlcv/dlcv_its.hpp"
 
 using namespace cv;
 using namespace std;
 
-static void help() {
-  cout << "The program is image transfer sketch style.";
-  cout << endl;
-  cout << "Example:\n"
-          "\tsketch www.xxxx.com raw.png sketch.png";
-  cout << endl;
-}
-
 int main(int argc, const char *argv[]) {
-  if (argc < 4) {
-    help();
-    return -1;
-  }
+  char *url = (char *)argv[1];
+  char *rawImage = (char *)argv[2];
+  char *newImage = (char *)argv[3];
+  download(url, rawImage);
 
-  download(argv[1], argv[2]);
-  Mat image = imread(argv[2], 0);
-  Mat sketch = imageToSketch(argv[2]);
-  imwrite(argv[3], sketch);
+  Mat image = imread(rawImage, 0);
+  Mat sketch;
+  imageToSketch(image, sketch);
+  imwrite(newImage, sketch);
   return 0;
 }

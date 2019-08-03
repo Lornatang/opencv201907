@@ -17,19 +17,11 @@
 #ifndef ITS_LOG_HPP
 #define ITS_LOG_HPP
 
-#define MSG_DEBUG   0x01
-#define MSG_INFO    0x02
-#define MSG_WARNING 0x03
-#define MSG_ERROR   0x04
-
-static int print_level = MSG_INFO | MSG_DEBUG | MSG_WARNING | MSG_ERROR;
-
 /**
  * print error.
- * @example:
- *   [MSG_ERROR][parser_URL(101)]:url invalid."
- * @author: Changyu Liu
- * @last modify time: 2019.8.1
+ * example: "[MSG_ERROR][parser_URL(101)]:url invalid"
+ * @ author: Changyu Liu
+ * @ last modify time: 2019.8.2
  */
 #define lprintf(level, format, argv...)                                       \
   do {                                                                        \

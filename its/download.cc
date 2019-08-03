@@ -14,8 +14,7 @@
  * ==============================================================================
  */
 
-
-#include "../../include/download.hpp"
+#include "../include/download.hpp"
 
 /**
  * Ignore Case and case.
@@ -25,9 +24,9 @@
  * Returns:
  *  NULL
  * @ author: Changyu Liu
- * @ time: 2019.7.25
+ * @ time: 2019.8.2
  */
-char *strncasestr(char *str, char *sub) {
+char *strncasestr(char *str, const char *sub) {
   if (!str || !sub) return NULL;
 
   int len = strlen(sub);
@@ -48,24 +47,25 @@ char *strncasestr(char *str, char *sub) {
  * Returns:
  *  resolve success return 0, resolve faile return -1
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  */
 int parser_URL(char *url, http_t *info) {
   char *tmp = url, *start = NULL, *end = NULL;
   int len = 0;
 
-  if (strncasestr(tmp, (char *) "http://"))
+  /* 跳过http:// */
+  if (strncasestr(tmp, "http://")) {
     tmp += strlen("http://");
-  else if (strncasestr(tmp, (char *) "https://"))
-    tmp += strlen("https://");
-
+  }
   start = tmp;
-  if (!(tmp = strchr(start, '/'))) return -1;
-
+  if (!(tmp = strchr(start, '/'))) {
+    lprintf(MSG_ERROR, "url invaild\n");
+    return -1;
+  }
   end = tmp;
 
-  // port default 80.
-  info->port = 80;
+  /*解析端口号和主机*/
+  info->port = 80;   //先附默认值80
 
   len = _MIN(end - start, HOST_NAME_LEN - 1);
   strncpy(info->host_name, start, len);
@@ -73,22 +73,25 @@ int parser_URL(char *url, http_t *info) {
 
   if ((tmp = strchr(start, ':')) && tmp < end) {
     info->port = atoi(tmp + 1);
-    if (info->port <= 0 || info->port >= 65535) return -1;
-
-    // Assignment before overwriting
+    if (info->port <= 0 || info->port >= 65535) {
+      lprintf(MSG_ERROR, "url port invaild\n");
+      return -1;
+    }
+    /* 覆盖之前的赋值 */
     len = _MIN(tmp - start, HOST_NAME_LEN - 1);
     strncpy(info->host_name, start, len);
     info->host_name[len] = '\0';
   }
 
-  // copy url
+  /* 复制uri */
   start = end;
   strncpy(info->url, start, URI_MAX_LEN - 1);
 
-  lprintf(MSG_INFO, "Parse url ok\nhost:%s, port:%d, url:%s\n", info->host_name,
-          info->port, info->url);
+  lprintf(MSG_INFO, "parse url ok\nhost:%s, port:%d, uri:%s\n",
+          info->host_name, info->port, info->url);
   return 0;
 }
+
 
 /**
  * resolve dns
@@ -97,15 +100,15 @@ int parser_URL(char *url, http_t *info) {
  * Returns:
  *   resolve success return dns address, else return -1
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  */
 unsigned long dns(char *host_name) {
   struct hostent *host;
-  struct in_addr addr;
+  struct in_addr addr{};
   char **pp;
 
   host = gethostbyname(host_name);
-  if (host == NULL) {
+  if (host == nullptr) {
     lprintf(MSG_ERROR, "gethostbyname %s failed\n", host_name);
     return -1;
   }
@@ -129,7 +132,7 @@ unsigned long dns(char *host_name) {
  * Returns:
  *   connet success return 0, else return -1.
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  */
 int set_socket_option(int sock) {
   struct timeval timeout;
@@ -163,7 +166,7 @@ int set_socket_option(int sock) {
  * Returns:
  *   connect server success return 0, else return -1
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  * */
 int connect_server(http_t *info) {
   int sockfd;
@@ -211,7 +214,7 @@ int connect_server(http_t *info) {
  * Returns:
  *   Send the correct request bytes to the server
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  */
 int send_request(http_t *info) {
   int len;
@@ -236,7 +239,7 @@ int send_request(http_t *info) {
  * Returns:
  *   resolve success return 0, else return -1.
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  */
 int parse_http_header(http_t *info) {
   char *p = NULL;
@@ -293,7 +296,7 @@ int parse_http_header(http_t *info) {
  * Returns:
  *   success return 0, else return -1.
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  */
 int save_data(http_t *info, const char *buf, int len) {
   int total_len = len;
@@ -327,7 +330,7 @@ int save_data(http_t *info, const char *buf, int len) {
  * Returns:
  *   success return 0, else return -1
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  */
 int read_data(http_t *info, int len) {
   int total_len = len;
@@ -383,7 +386,7 @@ int read_data(http_t *info, int len) {
  * Returns:
  *   success return 0, else return -1
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  */
 int recv_chunked_response(http_t *info) {
   long part_len;
@@ -411,7 +414,7 @@ int recv_chunked_response(http_t *info) {
  * Returns:
  *   success return 0, else return -1
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  */
 float calc_download_speed(http_t *info) {
   int diff_time = 0;
@@ -432,7 +435,7 @@ float calc_download_speed(http_t *info) {
  * Returns:
  *  success return 0, else return -1
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  */
 int recv_response(http_t *info) {
   int len = 0, total_len = info->len;
@@ -451,13 +454,13 @@ int recv_response(http_t *info) {
  * Returns:
  *   success return 0, else return -1
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modifly time: 2019.8.2
  */
 void clean_up(http_t *info) {
   if (info->in) fclose(info->in);
   if (-1 != info->sock) close(info->sock);
   if (info->save_file) fclose(info->save_file);
-  if (info) free(info);
+  free(info);
 }
 
 /**
@@ -470,26 +473,32 @@ void clean_up(http_t *info) {
  * Example:
  *   ./download https://www.baidu.com baidu.txt
  * @ author: Changyu Liu
- * @ last modifly time: 2019.7.25
+ * @ last modify time: 2019.8.2
  */
-int download(const char *url, const char *save_path) {
-  http_t *info = NULL;
+int download(char *url, char *save_path) {
+  printf("start download!\n");
+  http_t *info = nullptr;
   char tmp[URI_MAX_LEN] = {0};
 
-  if (!url || !save_path) return -1;
+  if (!url || !save_path) {
+    printf("check url or save path exists!\n");
+    return -1;
+  }
 
   // Initialization structure
   info = (http_t *) malloc(sizeof(http_t));
   if (!info) {
     lprintf(MSG_ERROR, "malloc failed\n");
     return -1;
-  }
+  } else
+    printf("malloc space successful!\n");
   memset(info, 0x0, sizeof(http_t));
   info->sock = -1;
-  info->save_path = (char *) save_path;
+  info->save_path = save_path;
 
   // resolve url
-  if (-1 == parser_URL((char *) url, info)) {
+  if (-1 == parser_URL(url, info)) {
+    printf("parer url error!\n");
     clean_up(info);
     return -1;
   }
@@ -527,7 +536,7 @@ int download(const char *url, const char *save_path) {
       return -1;
     }
 
-    info->end_recv_time = time(0);
+    info->end_recv_time = time(nullptr);
     lprintf(MSG_INFO, "recv %d bytes\n", info->recv_data_len);
     lprintf(MSG_INFO, "Average download speed: %.2fKB/s\n",
             calc_download_speed(info) / 1000);
@@ -546,5 +555,10 @@ int download(const char *url, const char *save_path) {
   }
 
   clean_up(info);
+  return 0;
+}
+
+int main(int argc, const char *argv[]) {
+  download((char *) argv[1], (char *)argv[2]);
   return 0;
 }

@@ -14,30 +14,33 @@
  * ==============================================================================
  */
 
-#include "../../include/dir.hpp"
-#include "../../include/download.hpp"
-#include "../../include/process.hpp"
+#ifndef DLCV_DLCV_VC_HPP
+#define DLCV_DLCV_VC_HPP
+
+#include "opencv2/core.hpp"
+#include "opencv2/highgui.hpp"
+#include "opencv2/imgproc.hpp"
+#include "opencv2/imgcodecs.hpp"
+#include "opencv2/opencv.hpp"
+
+#include <iostream>
+#include <vector>
 
 using namespace cv;
 using namespace std;
 
-static void help() {
-  cout << "The program is image transfer sketch style.";
-  cout << endl;
-  cout << "Example:\n"
-          "\tsketch www.xxxx.com raw.png sketch.png";
-  cout << endl;
-}
+/**
+ * Divide video file into several consecutive frames.
+ * Args:
+ *   video_name: Name of video file
+ *   dir_name: Video Cut into Picture Preserved Address
+ * Returns:
+ *   success return 0, else return -1
+ * @ author: Changyu Liu
+ * @ last modify time: 2019.7.30
+ */
+int video_to_image(const char *video_name, const char *dir_name);
 
-int main(int argc, const char *argv[]) {
-  if (argc < 4) {
-    help();
-    return -1;
-  }
+vector<Rect> detectSmile(Mat &faces);
 
-  download(argv[1], argv[2]);
-  Mat image = imread(argv[2], 0);
-  Mat sketch = imageToSketch(argv[2]);
-  imwrite(argv[3], sketch);
-  return 0;
-}
+#endif // DLCV_DLCV_VC_HPP

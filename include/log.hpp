@@ -14,30 +14,19 @@
  * ==============================================================================
  */
 
-#include "../../include/dir.hpp"
-#include "../../include/download.hpp"
-#include "../../include/process.hpp"
+#ifndef DLCV_LOG_HPP
+#define DLCV_LOG_HPP
 
-using namespace cv;
-using namespace std;
+/**
+ * print error.
+ * example: "[MSG_ERROR][parser_URL(101)]:url invalid"
+ * @ author: Changyu Liu
+ * @ last modify time: 2019.8.2
+ */
+#define lprintf(level, format, argv...)                                       \
+  do {                                                                        \
+    if (level & print_level)                                                  \
+      printf("[%s][%s(%d)]:" format, #level, __FUNCTION__, __LINE__, ##argv); \
+  } while (0)
 
-static void help() {
-  cout << "The program is image transfer sketch style.";
-  cout << endl;
-  cout << "Example:\n"
-          "\tsketch www.xxxx.com raw.png sketch.png";
-  cout << endl;
-}
-
-int main(int argc, const char *argv[]) {
-  if (argc < 4) {
-    help();
-    return -1;
-  }
-
-  download(argv[1], argv[2]);
-  Mat image = imread(argv[2], 0);
-  Mat sketch = imageToSketch(argv[2]);
-  imwrite(argv[3], sketch);
-  return 0;
-}
+#endif  // DLCV_LOG_HPP

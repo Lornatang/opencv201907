@@ -14,30 +14,29 @@
  * ==============================================================================
  */
 
-#include "../../include/dir.hpp"
-#include "../../include/download.hpp"
-#include "../../include/process.hpp"
+
+#ifndef DLCV_DLCV_ITS_HPP
+#define DLCV_DLCV_ITS_HPP
+
+#include "opencv2/core.hpp"
+#include "opencv2/imgproc.hpp"
+#include "opencv2/highgui.hpp"
+#include "opencv2/imgcodecs.hpp"
+
+#include <iostream>
 
 using namespace cv;
-using namespace std;
 
-static void help() {
-  cout << "The program is image transfer sketch style.";
-  cout << endl;
-  cout << "Example:\n"
-          "\tsketch www.xxxx.com raw.png sketch.png";
-  cout << endl;
-}
+/**
+ * Convert color map to simple pencil style.
+ * Args:
+ *   fileName: A file stream of input strings.
+ *   saveName: Save file path.
+ * Returns:
+ *   success return 0, else return -1.
+ * @author: Changyu Liu.
+ * @last modify time: 2019.8.1
+ */
+Mat imageToSketch(Mat &inputArray, Mat &outputArray);
 
-int main(int argc, const char *argv[]) {
-  if (argc < 4) {
-    help();
-    return -1;
-  }
-
-  download(argv[1], argv[2]);
-  Mat image = imread(argv[2], 0);
-  Mat sketch = imageToSketch(argv[2]);
-  imwrite(argv[3], sketch);
-  return 0;
-}
+#endif // DLCV_DLCV_ITS_HPP
