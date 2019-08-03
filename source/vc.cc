@@ -49,7 +49,7 @@ int main(int argc, const char *argv[]) {
   char *videoDir = (char *)argv[3];
   char *smilePath = (char *)argv[4];
 
-  if(download(url, videoName) == -1) {
+  if(download_file(url, videoName) != CURLE_OK) {
     cerr << "download video file error, please check url validation!" << endl;
     return -1;
   }

@@ -39,7 +39,7 @@ using namespace std;
  * @ author: Changyu Liu
  * @ last modify time: 2019.7.30
  */
-int video_to_image(const char *video_name, const char *dir_name);
+int video_to_image(const char *video_name, char *dir_name);
 
 vector<Rect> detectSmile(Mat &faces);
 

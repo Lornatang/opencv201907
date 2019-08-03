@@ -29,7 +29,7 @@ using namespace std;
  * @ author: Changyu Liu
  * @ last modify time: 2019.8.2
  */
-int video_to_image(const char *video_name, const char *dir_name) {
+int video_to_image(const char *video_name, char *dir_name) {
   int frame_cnt = 0;
   int num = 0;
   Mat img;
@@ -47,7 +47,7 @@ int video_to_image(const char *video_name, const char *dir_name) {
 
     if (frame_cnt % 20 == 0) {
       ++num;
-      String img_path = dir_name + to_string(num) + ".png";
+      String img_path = dir_name + to_string('/') + to_string(num) + ".png";
       imwrite(img_path, img);
     }
     ++frame_cnt;
@@ -68,7 +68,7 @@ vector<Rect> detectSmile(Mat &faces) {
 
 int saveSmile(const String &videoDir, const String &smilePath) {
   for (int i = 1; i < 9999; i++) {
-    String imageName = "/" + to_string(i) + ".png";
+    String imageName = to_string('/') + to_string(i) + ".png";
     String imagePath = videoDir + imageName;
 
     Mat image = imread(imagePath);

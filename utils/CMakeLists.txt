@@ -27,7 +27,7 @@ else()
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 # link utils library
-target_link_libraries(dlcv_its ${OpenCV_LIBS} core)
+target_link_libraries(dlcv_its ${OpenCV_LIBS} core curl)
 # set utils C++17
 set_property(TARGET dlcv_its PROPERTY CXX_STANDARD 17)
 ################# utils  ######################
@@ -46,7 +46,7 @@ else()
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 # link utils library
-target_link_libraries(dlcv_vc ${OpenCV_LIBS} core)
+target_link_libraries(dlcv_vc ${OpenCV_LIBS} core curl)
 # set utils C++17
 set_property(TARGET dlcv_vc PROPERTY CXX_STANDARD 17)
 #################  vc  ########################

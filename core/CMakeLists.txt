@@ -28,7 +28,7 @@ else()
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 # link opencv library
-target_link_libraries(core ${OpenCV_LIBS})
+target_link_libraries(core ${OpenCV_LIBS} curl)
 
 # set C++17
 set_property(TARGET core PROPERTY CXX_STANDARD 17)

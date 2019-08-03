@@ -36,7 +36,7 @@ int main(int argc, const char *argv[]) {
   char *url = (char *)argv[1];
   char *rawImage = (char *)argv[2];
   char *newImage = (char *)argv[3];
-  download(url, rawImage);
+  download_image(url, rawImage);
 
   Mat image = imread(rawImage, 0);
   Mat sketch;

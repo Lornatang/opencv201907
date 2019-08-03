@@ -58,9 +58,9 @@ int parser_URL(char *url, http_t *info) {
   int len = 0;
 
   /* 跳过http:// */
-  if (strncasestr(tmp, (char *)"http://"))
+  if (strncasestr(tmp, (char *) "http://"))
     tmp += strlen("http://");
-  else if (strncasestr(tmp, (char *)"https://"))
+  else if (strncasestr(tmp, (char *) "https://"))
     tmp += strlen("https://");
 
   start = tmp;
@@ -265,14 +265,14 @@ int parse_http_header(http_t *info) {
       return 0;   /* 头解析正常 */
     }
     lprintf(MSG_DEBUG, "%s", info->buffer);
-    if ((p = strncasestr(info->buffer, (char *)"Content-length"))) {
+    if ((p = strncasestr(info->buffer, (char *) "Content-length"))) {
       p = strchr(p, ':');
       p += 2;     // 跳过冒号和后面的空格
       info->len = atoi(p);
       lprintf(MSG_INFO, "Content-length: %d\n", info->len);
       // return -1;
-    } else if ((p = strncasestr(info->buffer, (char *)"Transfer-Encoding")) != nullptr) {
-      if (strncasestr(info->buffer, (char *)"chunked")) {
+    } else if ((p = strncasestr(info->buffer, (char *) "Transfer-Encoding")) != nullptr) {
+      if (strncasestr(info->buffer, (char *) "chunked")) {
         info->chunked_flag = 1;
       } else {
         /* 不支持其他编码的传送方式 */
@@ -561,7 +561,7 @@ int download_image(char *url, char *save_path) {
     lprintf(MSG_INFO, "redirect: %s\n", info->location);
     strncpy(tmp, info->location, URI_MAX_LEN - 1);
     clean_up(info);
-    return download(tmp, save_path);
+    return download_image(tmp, save_path);
   } else if (info->status_code == HTTP_NOT_FOUND) {
     lprintf(MSG_ERROR, "Page not found\n");
     clean_up(info);
@@ -578,13 +578,43 @@ int download_image(char *url, char *save_path) {
 /**
  * copy data to a file.
  * Args:
- *   ptr:
+ *   ptr: data source address.
+ *   size: number of bytes per cell.
+ *   count: the number of units.
+ *   stream: file stream pointer.
  * Returns:
+ *   the number of units successfully written.
+ *   If it is less than count, an error has occurred and the file stream error
+ *   flag bit is set, which can then be determined by the ferror() function.
  * @author: Changyu Liu
  * @last modify time: 2019.8.3
  */
-size_t writeData(void * ptr,size_t size,size_t nmemb,FILE * stream)
-{
-  int written  = fwrite(ptr,size,nmemb,stream);
+size_t writeData(void *ptr, size_t size, size_t count, FILE *stream) {
+  int written = fwrite(ptr, size, count, stream);
   return written;
+}
+
+/**
+ * Implement the file download function using the functions provided
+ * by the function library
+ * Args:
+ *
+ */
+CURLcode download_file(char *url, char *fileName) {
+  CURL *curl = NULL;
+  FILE *fp = NULL;
+  CURLcode res;
+  curl = curl_easy_init();
+  if (curl) {
+    fp = fopen(fileName, "wb");
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeData);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+    res = curl_easy_perform(curl);
+    curl_easy_cleanup(curl);
+    fclose(fp);
+    return res;
+  } else
+    return CURLE_FAILED_INIT;
+
 }

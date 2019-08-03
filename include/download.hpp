@@ -219,7 +219,7 @@ int recv_response(http_t *info);
 void clean_up(http_t *info);
 
 /**
- * download file func.
+ * download image func.
  * Args:
  *   url: Video Link Address
  *   save_path: Video File Save Address
@@ -232,6 +232,34 @@ void clean_up(http_t *info);
  */
 int download_image(char *url, char *save_path);
 
+/**
+ * copy data to a file.
+ * Args:
+ *   ptr: data source address.
+ *   size: number of bytes per cell.
+ *   count: the number of units.
+ *   stream: file stream pointer.
+ * Returns:
+ *   the number of units successfully written.
+ *   If it is less than count, an error has occurred and the file stream error
+ *   flag bit is set, which can then be determined by the ferror() function.
+ * @author: Changyu Liu
+ * @last modify time: 2019.8.3
+ */
+size_t writeData(void *ptr, size_t size, size_t count, FILE *stream);
+
+/**
+ * download file func.
+ * Args:
+ *   url: Video link address
+ *   fileName: Video file save address
+ * Returns:
+ *   success return 0, else return -1
+ * Example:
+ *   ./download https://www.baidu.com baidu.txt
+ * @ author: Changyu Liu
+ * @ last modify time: 2019.8.3
+ */
 CURLcode download_file(char *url, char *fileName);
 
 #endif  // DLCV_DOWNLOAD_HPP
