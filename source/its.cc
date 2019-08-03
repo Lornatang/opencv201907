@@ -23,9 +23,9 @@ using namespace std;
 static void help() {
   cout << "\nThe program is image transfer sketch style.\n\n"
           "Usage:\n"
-          "  its [url] [save_path] [sketch_path]\n"
+          "  utils [url] [save_path] [sketch_path]\n"
           "Example:\n"
-          "  its http://pic33.nipic.com/20131007/13639685_123501617185_2.jpg 1.jpg 2.jpg\n\n";
+          "  utils http://pic33.nipic.com/20131007/13639685_123501617185_2.jpg 1.jpg 2.jpg\n\n";
 }
 
 int main(int argc, const char *argv[]) {

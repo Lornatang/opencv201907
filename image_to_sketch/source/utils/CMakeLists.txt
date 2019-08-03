@@ -8,10 +8,10 @@ find_package(OpenCV REQUIRED)
 
 # load opencv include
 include_directories(/usr/local/include/opencv4/)
-# load its include
+# load utils include
 include_directories(/usr/local/include/dlcv/)
 
-# make its shared library
+# make utils shared library
 set(LIBRARY_OUTPUT_PATH lib)
 set(ITS_UTILS
     dir.cc

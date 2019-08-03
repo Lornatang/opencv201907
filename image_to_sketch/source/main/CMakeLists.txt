@@ -26,7 +26,7 @@ set(EXECUTABLE_OUTPUT_PATH bin)
 add_executable(${PROJECT_NAME} main.cc)
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 
-# link opencv and its library
+# link opencv and utils library
 target_link_libraries(${PROJECT_NAME} dlcv_its ${OpenCV_LIBS})
 
 # set C++17

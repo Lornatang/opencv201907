@@ -14,7 +14,7 @@
  * ==============================================================================
  */
 
-#include "dlcv_vc.hpp"
+#include "dlcv/dlcv_vc.hpp"
 
 using namespace cv;
 using namespace std;
@@ -64,4 +64,22 @@ vector<Rect> detectSmile(Mat &faces) {
   smileCascade.detectMultiScale(faces, smiles, 1.1, 2, 0 | CASCADE_SCALE_IMAGE,
                                 Size(30, 30));
   return smiles;
+}
+
+int saveSmile(const String &videoDir, const String &smilePath) {
+  for (int i = 1; i < 9999; i++) {
+    String imageName = "/" + to_string(i) + ".png";
+    String imagePath = videoDir + imageName;
+
+    Mat image = imread(imagePath);
+    if (image.empty()) break;
+
+    Mat imageGray;
+    cvtColor(image, imageGray, COLOR_BGR2GRAY);
+    equalizeHist(imageGray, imageGray);
+
+    vector<Rect> smiles = detectSmile(imageGray);
+
+    if (!smiles.empty()) imwrite(smilePath, image);
+  }
 }

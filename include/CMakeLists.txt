@@ -11,7 +11,7 @@ set(core_include
     string.hpp)
 install(FILES ${core_include} DESTINATION include/dlcv)
 
-# install its include
+# install utils include
 set(its_include
     dlcv_its.hpp)
 install(FILES ${its_include} DESTINATION include/dlcv)

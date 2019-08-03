@@ -21,24 +21,28 @@ else ()
   link_directories(/usr/local/lib)
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
+################# utils  ######################
 set(EXECUTABLE_OUTPUT_PATH bin/dlcv)
-# install its exec
+# install utils exec
 add_executable(its its.cc)
 install(TARGETS its DESTINATION bin/dlcv)
-# install vc exec
-#add_executable(vc vc.cc)
-#install(TARGETS vc DESTINATION bin/dlcv)
-# install ocr exec
 
-# link opencv and its library
+# link opencv and utils library
 target_link_libraries(its ${OpenCV_LIBS} dlcv_its)
-# link opencv and vc library
-#target_link_libraries(vc dlcv_vc ${OpenCV_LIBS})
-# link opencv and ocr library
 
-# set its C++17
+# set utils C++17
 set_property(TARGET its PROPERTY CXX_STANDARD 17)
-# set vc C++17
-#set_property(TARGET vc PROPERTY CXX_STANDARD 17)
-# set ocr C++17
+################# utils  ######################
 
+#################  vc  ########################
+set(EXECUTABLE_OUTPUT_PATH bin/dlcv)
+# install utils exec
+add_executable(vc vc.cc)
+install(TARGETS vc DESTINATION bin/dlcv)
+
+# link opencv and utils library
+target_link_libraries(vc ${OpenCV_LIBS} dlcv_vc)
+
+# set utils C++17
+set_property(TARGET vc PROPERTY CXX_STANDARD 17)
+#################  vc  ########################

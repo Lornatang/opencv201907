@@ -22,7 +22,20 @@
 using namespace std;
 using namespace cv;
 
+static void help() {
+  cout << "\nThe program is extract video beautiful cover.\n\n"
+          "Usage:\n"
+          "  utils [url] [video_name] [video_dir] [smile_path]\n"
+          "Example:\n"
+          "  utils http://pic33.nipic.com/20131007/13639685_123501617185_2.jpg 1.jpg 2.jpg\n\n";
+}
+
 int main(int argc, const char *argv[]) {
+  if (argc < 4) {
+    help();
+    return 0;
+  }
+
   char *url = (char *)argv[1];
   char *videoName = (char *)argv[2];
   char *videoDir = (char *)argv[3];
@@ -44,21 +57,7 @@ int main(int argc, const char *argv[]) {
 
   // Read the image, convert it into gray image, and then equalize the
   // histogram.
-  for (int i = 1; i < 9999; i++) {
-    String imageName = "/" + to_string(i) + ".png";
-    String imagePath = videoDir + imageName;
-
-    Mat image = imread(imagePath);
-    if (image.empty()) break;
-
-    Mat imageGray;
-    cvtColor(image, imageGray, COLOR_BGR2GRAY);
-    equalizeHist(imageGray, imageGray);
-
-    vector<Rect> smiles = detectSmile(imageGray);
-
-    if (!smiles.empty()) imwrite(smilePath, image);
-  }
+  saveSmile(videoDir, smilePath);
 
   if (__rmdir__(videoDir) == -1) {
     cerr << "remove video dir error, please check permissions!" << endl;
