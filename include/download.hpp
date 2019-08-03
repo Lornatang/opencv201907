@@ -28,20 +28,12 @@
 #define RECV_BUF 8192
 #define RCV_SND_TIMEOUT (10 * 1000)
 
-#define MSG_DEBUG 0x01
-#define MSG_INFO 0x02
-#define MSG_ERROR 0x04
 
 #define _MIN(x, y) ((x) > (y) ? (y) : (x))
 
 #define HTTP_OK 200
 #define HTTP_REDIRECT 302
 #define HTTP_NOT_FOUND 404
-
-#ifndef INCLUDE_PRINT_LEVEL
-#define INCLUDE_PRINT_LEVEL
-static int print_level = /*MSG_DEBUG |*/ MSG_INFO | MSG_ERROR;
-#endif  // INCLUDE_PRINT_LEVEL
 
 #include <arpa/inet.h>
 #include <cerrno>

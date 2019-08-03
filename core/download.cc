@@ -14,6 +14,7 @@
  * ==============================================================================
  */
 
+#include "dlcv/log.hpp"
 #include "../include/download.hpp"
 
 using namespace std;
@@ -56,9 +57,11 @@ int parser_URL(char *url, http_t *info) {
   int len = 0;
 
   /* 跳过http:// */
-  if (strncasestr(tmp, "http://")) {
+  if (strncasestr(tmp, "http://"))
     tmp += strlen("http://");
-  }
+  else if (strncasestr(tmp, "https://"))
+    tmp += strlen("https://");
+
   start = tmp;
   if (!(tmp = strchr(start, '/'))) {
     lprintf(MSG_ERROR, "url invaild\n");
