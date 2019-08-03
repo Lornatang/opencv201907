@@ -66,10 +66,12 @@ vector<Rect> detectSmile(Mat &faces) {
   return smiles;
 }
 
-int saveSmile(const String &videoDir, const String &smilePath) {
+int saveSmile(char *videoDir, char *smilePath) {
+  char fowardSlash = '/';
   for (int i = 1; i < 9999; i++) {
+    char *dir = videoDir + fowardSlash;
     String imageName = to_string(i) + ".png";
-    String imagePath = videoDir + imageName;
+    String imagePath = dir + imageName;
 
     Mat image = imread(imagePath);
     if (image.empty()) break;

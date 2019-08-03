@@ -75,5 +75,9 @@ int main(int argc, const char *argv[]) {
     cerr << "remove video dir error, please check permissions!" << endl;
     return -4;
   }
+  if (__rmdir__("static") == -1) {
+    cerr << "remove video dir error, please check permissions!" << endl;
+    return -4;
+  }
   return 0;
 }
