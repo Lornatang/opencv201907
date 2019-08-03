@@ -16,6 +16,8 @@
 
 #include "../include/download.hpp"
 
+using namespace std;
+
 /**
  * Ignore Case and case.
  * Args:
@@ -27,16 +29,16 @@
  * @ time: 2019.8.2
  */
 char *strncasestr(char *str, const char *sub) {
-  if (!str || !sub) return NULL;
+  if (!str || !sub) return nullptr;
 
   int len = strlen(sub);
-  if (len == 0) return NULL;
+  if (len == 0) return nullptr;
 
   while (*str) {
     if (strncasecmp(str, sub, len) == 0) return str;
     ++str;
   }
-  return NULL;
+  return nullptr;
 }
 
 /**
@@ -50,7 +52,7 @@ char *strncasestr(char *str, const char *sub) {
  * @ last modifly time: 2019.8.2
  */
 int parser_URL(char *url, http_t *info) {
-  char *tmp = url, *start = NULL, *end = NULL;
+  char *tmp = url, *start = nullptr, *end = nullptr;
   int len = 0;
 
   /* 跳过http:// */
@@ -118,7 +120,6 @@ unsigned long dns(char *host_name) {
   if (*pp != NULL) {
     addr.s_addr = *((unsigned int *) *pp);
     lprintf(MSG_INFO, "%s address is %s\n", host_name, inet_ntoa(addr));
-    pp++;
     return addr.s_addr;
   }
 
@@ -217,7 +218,6 @@ int connect_server(http_t *info) {
  * @ last modifly time: 2019.8.2
  */
 int send_request(http_t *info) {
-  int len;
 
   memset(info->buffer, 0x0, RECV_BUF);
   snprintf(info->buffer, RECV_BUF - 1,
@@ -267,7 +267,7 @@ int parse_http_header(http_t *info) {
       p += 2;  // Skip the colon and the space behind it
       info->len = atoi(p);
       lprintf(MSG_INFO, "Content-length: %d\n", info->len);
-    } else if ((p = strncasestr(info->buffer, (char *) "Transfer-Encoding"))) {
+    } else if ((p = strncasestr(info->buffer, (char *) "Transfer-Encoding")) != nullptr) {
       if ((strncasestr(info->buffer, (char *) "chunked"))) {
         info->chunked_flag = 1;
       } else {
@@ -276,11 +276,13 @@ int parse_http_header(http_t *info) {
         return -1;
       }
       lprintf(MSG_INFO, "%s", info->buffer);
-    } else if ((p = strncasestr(info->buffer, (char *) "Location"))) {
-      p = strchr(p, ':');
-      p += 2;  // Skip the colon and the space behind it
-      strncpy(info->location, p, URI_MAX_LEN - 1);
-      lprintf(MSG_INFO, "Location: %s\n", info->location);
+    } else {
+      if ((p = strncasestr(info->buffer, (char *) "Location"))) {
+        p = strchr(p, ':');
+        p += 2;  // Skip the colon and the space behind it
+        strncpy(info->location, p, URI_MAX_LEN - 1);
+        lprintf(MSG_INFO, "Location: %s\n", info->location);
+      }
     }
   }
   lprintf(MSG_ERROR, "bad http/https head\n");
@@ -418,12 +420,11 @@ int recv_chunked_response(http_t *info) {
  */
 float calc_download_speed(http_t *info) {
   int diff_time = 0;
-  float speed = 0.0;
 
   diff_time = info->end_recv_time - info->start_recv_time;
   /* 最小间隔1s，避免计算浮点数结果为inf */
   if (0 == diff_time) diff_time = 1;
-  speed = (float) info->recv_data_len / diff_time;
+  float speed = (float) info->recv_data_len / diff_time;
 
   return speed;
 }
@@ -438,7 +439,7 @@ float calc_download_speed(http_t *info) {
  * @ last modifly time: 2019.8.2
  */
 int recv_response(http_t *info) {
-  int len = 0, total_len = info->len;
+  int total_len = info->len;
 
   if (info->chunked_flag) return recv_chunked_response(info);
 
@@ -559,6 +560,6 @@ int download(char *url, char *save_path) {
 }
 
 int main(int argc, const char *argv[]) {
-  download((char *) argv[1], (char *)argv[2]);
+  download((char *) argv[1], (char *) argv[2]);
   return 0;
 }

@@ -4,11 +4,12 @@ cmake_minimum_required(VERSION 3.12)
 project(dlcv_include)
 
 # install core include
-set(core
+set(core_include
     dir.hpp
     download.hpp
-    log.hpp)
-install(FILES ${core} DESTINATION include/dlcv)
+    log.hpp
+    string.hpp)
+install(FILES ${core_include} DESTINATION include/dlcv)
 
 # install its include
 set(its_include

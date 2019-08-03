@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 
 # project name
-project(dlcv_its)
+project(dlcv_utils)
 
 # find OpenCV
 find_package(OpenCV REQUIRED)
@@ -13,25 +13,22 @@ include_directories(/usr/local/include/opencv4)
 # load dlcv include
 include_directories(/usr/local/include/dlcv)
 
+################# its  ######################
 # make its shared library
 set(LIBRARY_OUTPUT_PATH lib)
-set(ITS_UTILS
-    dir.cc
-    dlcv_its.cc
-    download.cc)
-add_library(${PROJECT_NAME} SHARED ${ITS_UTILS})
-# install library
+set(ITS_SOURCE dlcv_its.cc)
+add_library(dlcv_its SHARED ${ITS_SOURCE})
+# install its library
 # must check system os
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
-  install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION lib64)
+  install(TARGETS dlcv_its LIBRARY DESTINATION lib64)
 else()
-  install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION lib)
+  install(TARGETS dlcv_its LIBRARY DESTINATION lib)
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
-# link opencv library
-target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
-
-# set C++17
-set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
-
+# link its library
+target_link_libraries(dlcv_its ${OpenCV_LIBS} core)
+# set its C++17
+set_property(TARGET dlcv_its PROPERTY CXX_STANDARD 17)
+################# its  ######################
 

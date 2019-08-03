@@ -43,3 +43,7 @@
 *.jpeg
 *.jpg
 *.pyc
+
+# cmake file
+cmake-build-debug
+build

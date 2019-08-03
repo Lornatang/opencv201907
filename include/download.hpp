@@ -54,8 +54,9 @@ static int print_level = /*MSG_DEBUG |*/ MSG_INFO | MSG_ERROR;
 #include <sys/types.h>
 #include <ctime>
 #include <unistd.h>
+#include <iostream>
 
-#include "log.hpp"
+#include "dlcv/log.hpp"
 
 typedef struct {
   int sock;  // Socket Communicating with Server
@@ -152,7 +153,7 @@ int send_request(http_t *info);
  * @ author: Changyu Liu
  * @ last modifly time: 2019.7.25
  */
-int parse_http_header(http_t *info) ;
+int parse_http_header(http_t *info);
 
 /**
  * Save the content of the server response.
@@ -165,7 +166,7 @@ int parse_http_header(http_t *info) ;
  * @ author: Changyu Liu
  * @ last modifly time: 2019.7.25
  */
-int save_data(http_t *info, const char *buf, int len) ;
+int save_data(http_t *info, const char *buf, int len);
 
 /**
  * read file data
@@ -221,7 +222,7 @@ int recv_response(http_t *info);
  * @ author: Changyu Liu
  * @ last modifly time: 2019.7.25
  */
-void clean_up(http_t *info) ;
+void clean_up(http_t *info);
 
 /**
  * download file func.
