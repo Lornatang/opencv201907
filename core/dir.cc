@@ -25,8 +25,8 @@
  * @author: Changyu Liu.
  * @last modify time: 2019.8.2
  */
-int __mkdir__(const char *dirName) {
-  if (mkdir(dirName, 0777) != -1)
+int __mkdir__(const char *dir_name) {
+  if (mkdir(dir_name, 0777) != -1)
     return 0;
   else
     return -1;

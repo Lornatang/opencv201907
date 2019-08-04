@@ -19,6 +19,8 @@
 using namespace cv;
 using namespace std;
 
+const string forward_salash = "/";
+
 /**
  * Divide video file into several consecutive frames.
  * Args:
@@ -29,60 +31,56 @@ using namespace std;
  * @ author: Changyu Liu
  * @ last modify time: 2019.8.2
  */
-int video_to_image(const char *video_name, char *dir_name) {
-  int frame_cnt = 0;
-  int num = 0;
-  Mat img;
+int video_to_image(const char *video_name, const char *video_dir) {
+  int frame_count = 1;
+  int num = 1;
+  Mat image;
 
   VideoCapture cap(video_name);
-  if (!cap.isOpened()) {
-    cerr << "open video error! please check video exists!" << endl;
-    return -1;
-  }
-
+  if (!cap.isOpened()) return -1;
+  string __video_name = video_name;
+  string __dir_name = video_dir;
   bool flag = true;
   while (flag) {
-    cap.read(img);
-    if (img.empty()) flag = false;
-
-    if (frame_cnt % 20 == 0) {
-      ++num;
-      String img_path = dir_name + to_string('/') + to_string(num) + ".png";
-      imwrite(img_path, img);
+    cap.read(image);
+    if (image.empty()) flag = false;
+    if (frame_count % 12 == 0) {
+      num += 1;
+      string image_path = video_dir + forward_salash +  to_string(num) + ".png";
+      imwrite(image_path, image);
     }
-    ++frame_cnt;
+    frame_count += 1;
   }
   cap.release();
   return 0;
 }
 
-vector<Rect> detectSmile(Mat &faces) {
-  CascadeClassifier smileCascade;
+vector<Rect> detect_smile(Mat &faces) {
+  CascadeClassifier smile_cascade;
   vector<Rect> smiles;
-  smileCascade.load(
+  smile_cascade.load(
           "/usr/local/share/opencv4/haarcascades/haarcascade_smile.xml");
-  smileCascade.detectMultiScale(faces, smiles, 1.1, 2, 0 | CASCADE_SCALE_IMAGE,
-                                Size(30, 30));
+  smile_cascade.detectMultiScale(faces, smiles, 1.1, 2, 0 | CASCADE_SCALE_IMAGE,
+                                 Size(30, 30));
   return smiles;
 }
 
-int saveSmile(char *videoDir, char *smilePath) {
-  char fowardSlash = '/';
+int save_smile(const char *video_dir, const char *smile_path) {
+  string __video_dir = video_dir + forward_salash;
   for (int i = 1; i < 9999; i++) {
-    char *dir = videoDir + fowardSlash;
-    String imageName = to_string(i) + ".png";
-    String imagePath = dir + imageName;
+    string image_name = to_string(i) + ".png";
+    string image_path = __video_dir + image_name;
 
-    Mat image = imread(imagePath);
+    Mat image = imread(image_path);
     if (image.empty()) break;
 
-    Mat imageGray;
-    cvtColor(image, imageGray, COLOR_BGR2GRAY);
-    equalizeHist(imageGray, imageGray);
+    Mat gray;
+    cvtColor(image, gray, COLOR_BGR2GRAY);
+    equalizeHist(gray, gray);
 
-    vector<Rect> smiles = detectSmile(imageGray);
+    vector<Rect> smiles = detect_smile(gray);
 
-    if (!smiles.empty()) imwrite(smilePath, image);
+    if (!smiles.empty()) imwrite(smile_path, image);
   }
   return 0;
 }

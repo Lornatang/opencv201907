@@ -39,10 +39,9 @@ using namespace std;
  * @ author: Changyu Liu
  * @ last modify time: 2019.7.30
  */
-int video_to_image(const char *video_name, char *dir_name);
+int video_to_image(const char *video_name, const char *video_dir);
 
-vector<Rect> detectSmile(Mat &faces);
+vector<Rect> detect_smile(Mat &faces);
 
-int saveSmile(char *videoDir, char *smilePath);
-
+int save_smile(const char *videoDir, const char *smilePath);
 #endif // DLCV_DLCV_VC_HPP
