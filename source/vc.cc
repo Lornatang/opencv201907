@@ -40,14 +40,16 @@ int main(int argc, const char *argv[]) {
   const char *video_dir = "/tmp/dlcv/video";
   const char *smile_dir = "/tmp/dlcv/static";
   const char *smile = "/tmp/dlcv/static/smile.png";
-  if (__mkdir__(base_dir) == -1) {
-    cerr << "create base dir error, please check permissions!" << endl;
-    return -2;
-  }
+  if (__mkdir__(base_dir) != -1)
+    cout << "detector base dir not exists, auto create it." << endl;
+  else
+    cout << "detector base dir exists, not create." << endl;
+
   if (download_file(const_cast<char *>(argv[1]), const_cast<char *>(video_name)) != CURLE_OK) {
     cerr << "download video file error, please check url validation!" << endl;
     return -1;
   }
+
   if (__mkdir__(video_dir) == -1) {
     cerr << "create video dir error, please check permissions!" << endl;
     return -2;
@@ -64,14 +66,11 @@ int main(int argc, const char *argv[]) {
 
   // Read the image, convert it into gray image, and then equalize the
   // histogram.
-  if (save_smile(video_dir, smile)) {
-    cerr << "video transfer image error, please check video exists!" << endl;
-    return -4;
-  }
+  save_smile(video_dir, smile);
 
-  if (__rmdir__(video_dir) == -1) {
-    cerr << "remove video dir error, please check permissions!" << endl;
-    return -5;
-  }
+//  if (__rmdir__(video_dir) == -1) {
+//    cerr << "remove video dir error, please check permissions!" << endl;
+//    return -5;
+//  }
   return 0;
 }

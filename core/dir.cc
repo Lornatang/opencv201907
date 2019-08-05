@@ -14,7 +14,24 @@
  * ==============================================================================
  */
 
-#include "../include/dir.hpp"
+#include "dlcv/dir.hpp"
+
+/**
+ * check file or dir exists.
+ * Args:
+ *   filename: input file name.
+ * Returns:
+ *   if exists return 0, else return -1.
+ * @author: Changyu Liu.
+ * @last modify time: 2019.8.5.
+ */
+int __access__(const char *filename) {
+  if (access(filename, 0) != -1)
+    return 0;
+  else
+    return -1;
+}
+
 
 /**
  * Create a directory if the file directory does not exist.

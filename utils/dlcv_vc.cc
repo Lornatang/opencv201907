@@ -15,6 +15,7 @@
  */
 
 #include "dlcv/dlcv_vc.hpp"
+#include "dlcv/dir.hpp"
 
 using namespace cv;
 using namespace std;
@@ -33,7 +34,7 @@ const string forward_salash = "/";
  */
 int video_to_image(const char *video_name, const char *video_dir) {
   int frame_count = 1;
-  int num = 1;
+  int num = 0;
   Mat image;
 
   VideoCapture cap(video_name);
@@ -67,20 +68,23 @@ vector<Rect> detect_smile(Mat &faces) {
 
 int save_smile(const char *video_dir, const char *smile_path) {
   string __video_dir = video_dir + forward_salash;
-  for (int i = 1; i < 9999; i++) {
+  for (int i = 2; i < 9999; i++) {
     string image_name = to_string(i) + ".png";
     string image_path = __video_dir + image_name;
 
     Mat image = imread(image_path);
     if (image.empty()) break;
-
     Mat gray;
     cvtColor(image, gray, COLOR_BGR2GRAY);
     equalizeHist(gray, gray);
-
     vector<Rect> smiles = detect_smile(gray);
 
-    if (!smiles.empty()) imwrite(smile_path, image);
+    if (!smiles.empty()) {
+      imwrite(smile_path, image);
+      break;
+    }
+    if (__access__(smile_path) == -1)
+      cerr << "undetector smile from this video!" << endl;
   }
   return 0;
 }
