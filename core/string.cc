@@ -14,8 +14,7 @@
  * ==============================================================================
  */
 
-#ifndef DLCV_STRING_HPP
-#define DLCV_STRING_HPP
+#include "dlcv/string.hpp"
 
 /**
  * Calculates the length of the string.
@@ -25,14 +24,18 @@
  *   string length.
  * Example:
  *   const char *__s = "abc";
- *   size_t length = strlen(__s);
+ *   size_t length = __strlen__(__s);
  *   cout << "string __s length: " << length << endl;
  * Output:
  *   length: 3.
  * @author: Changyu Liu
  * @last modify time: 2019.8.5
  */
-size_t __strlen__(const char *__s);
+size_t __strlen__(const char *__s) {
+  const char *p = __s;
+  while (*__s != '\0') __s++;
+  return __s - p;
+}
 
 /**
  * Concatenate two strings
@@ -44,14 +47,21 @@ size_t __strlen__(const char *__s);
  * Example:
  *   char *__s1 = "abc";
  *   const char *__s2 = "def";
- *   const char *s = strcat(__s1, __s2);
+ *   const char *s = __strcat__(__s1, __s2);
  *   cout << "new string: " << s << endl;
  * Output:
  *   new string: abcdef.
  * @author: Changyu Liu
  * @last modify time: 2019.8.5
  */
-char *__strcat__(char *__s1, const char *__s2);
+char *__strcat__(char *__s1, const char *__s2) {
+  if (__s1 == nullptr || __s2 == nullptr)
+    return __s1;
+  char *p = __s1;
+  while (*__s1) __s1++;
+  while ((*__s1++ = *__s2++) != '\0');
+  return p;
+}
 
 /**
  * Add the first n characters to the end of the __s1 string and override the
@@ -73,7 +83,12 @@ char *__strcat__(char *__s1, const char *__s2);
  * @author: Changyu Liu
  * @last modify time: 2019.8.5
  */
-char *__strncat__(char *__s1, const char *__s2, size_t n);
+char *__strncat__(char *__s1, const char *__s2, size_t n) {
+  char *p = __s1;
+  while (*p != '\0') p++;
+  while (n-- && (*p++ = *__s2++));
+  return __s1;
+}
 
 /**
  * Copy src string to string dst.
@@ -92,7 +107,11 @@ char *__strncat__(char *__s1, const char *__s2, size_t n);
  * @author: Changyu Liu
  * @last modify time: 2019.8.5
  */
-char *__strcpy__(char *__dst, const char *__src);
+char *__strcpy__(char *__dst, const char *__src) {
+  char *p = __dst;
+  while ((*__dst++ = *__src++) != '\0');
+  return p;
+}
 
 /**
  * Copy src string to string dst.
@@ -112,7 +131,11 @@ char *__strcpy__(char *__dst, const char *__src);
  * @author: Changyu Liu
  * @last modify time: 2019.8.5
  */
-char *strncpy(char *__dst, const char *__src, size_t __n);
+char *strncpy(char *__dst, const char *__src, size_t __n) {
+  char *p = __dst;
+  while (--__n && (*__dst++ = *__src++) != '\0');
+  return p;
+}
 
 /**
  * Compare two strings to see if they are equal.
@@ -120,7 +143,7 @@ char *strncpy(char *__dst, const char *__src, size_t __n);
  *   __s1: compare string
  *   __s2: compare string
  * Returns:
- *   equal return 0, else return -1.
+ *   equal return 0, s1 > s2 return > 0, s1 < s2 return < 0.
  * Example:
  *   const char *__s1 = "abc";
  *   const char *__s2 = "abcdef";
@@ -130,7 +153,17 @@ char *strncpy(char *__dst, const char *__src, size_t __n);
  * @author: Changyu Liu
  * @last modify time: 2019.8.5
  */
-int __strcmp__(const char *__s1, const char *__s2);
+int __strcmp__(const char *__s1, const char *__s2) {
+  if (__s1 == nullptr || __s2 == nullptr)
+    return -1;
+  while (*__s1 == *__s2) {
+    if (*__s1 == '\0')
+      return 0;
+    __s1++;
+    __s2++;
+  }
+  return *__s1 - *__s2;
+}
 
 /**
  * Compare the first few strings.
@@ -149,6 +182,9 @@ int __strcmp__(const char *__s1, const char *__s2);
  * @author: Changyu Liu
  * @last modify time: 2019.8.5
  */
-int strncmp(const char *__s1, const char *__s2, size_t __n);
-
-#endif // DLCV_STRING_HPP
+int strncmp(const char *__s1, const char *__s2, size_t __n) {
+  if (__s1 == nullptr || __s2 == nullptr || __n < 0)
+    return -1;
+  while (--__n && (*__s1++ == *__s2++));
+  return *__s1 - *__s2;
+}

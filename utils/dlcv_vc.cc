@@ -5,8 +5,7 @@
  *    You may obtain a copy of the License at
  *
  *        http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
+ *by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -20,7 +19,7 @@
 using namespace cv;
 using namespace std;
 
-const string forward_salash = "/";
+string forward_salash = "/";
 
 /**
  * Divide video file into several consecutive frames.
@@ -68,7 +67,9 @@ vector<Rect> detect_smile(Mat &faces) {
 
 int save_smile(const char *video_dir, const char *smile_path) {
   string __video_dir = video_dir + forward_salash;
-  for (int i = 2; i < 9999; i++) {
+  double min_smile_degree = 0.;
+  double max_smile_degree = 0.;
+  for (int i = 1; i < 9999; i++) {
     string image_name = to_string(i) + ".png";
     string image_path = __video_dir + image_name;
 
@@ -76,15 +77,21 @@ int save_smile(const char *video_dir, const char *smile_path) {
     if (image.empty()) break;
     Mat gray;
     cvtColor(image, gray, COLOR_BGR2GRAY);
-    equalizeHist(gray, gray);
     vector<Rect> smiles = detect_smile(gray);
 
-    if (!smiles.empty()) {
-      imwrite(smile_path, image);
-      break;
-    }
-    if (__access__(smile_path) == -1)
-      cerr << "undetector smile from this video!" << endl;
+    if (!smiles.empty())
+      for (const auto& r : smiles) {
+        min_smile_degree = r.height;
+        if (min_smile_degree > max_smile_degree) {
+          imwrite(smile_path, image);
+          max_smile_degree = min_smile_degree;
+        }
+      }
   }
+  if (__access__(smile_path) == -1)
+    cerr << "undetector smile from this video!" << endl;
+  else
+    cout << "detector smile successful!" << endl;
+
   return 0;
 }

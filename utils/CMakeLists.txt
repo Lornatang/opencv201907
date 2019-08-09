@@ -12,6 +12,10 @@ include_directories(/usr/local/include)
 include_directories(/usr/local/include/opencv4)
 # load dlcv include
 include_directories(/usr/local/include/dlcv)
+# load leptonica include
+include_directories(/usr/local/include/leptonica)
+# load tesseract include
+include_directories(/usr/local/include/tesseract)
 
 ################# utils  ######################
 # make utils shared library
@@ -50,3 +54,36 @@ target_link_libraries(dlcv_vc ${OpenCV_LIBS} core curl)
 # set utils C++17
 set_property(TARGET dlcv_vc PROPERTY CXX_STANDARD 17)
 #################  vc  ########################
+
+#################  ocr  #######################
+# make utils shared library
+set(LIBRARY_OUTPUT_PATH lib)
+set(OCR_SOURCE dlcv_ocr.cc)
+add_library(dlcv_ocr SHARED ${OCR_SOURCE})
+# install utils library
+# must check system os
+if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+  install(TARGETS dlcv_ocr LIBRARY DESTINATION lib64)
+else()
+  install(TARGETS dlcv_ocr LIBRARY DESTINATION lib)
+endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
+# link utils library
+if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+  target_link_libraries(dlcv_ocr
+      ${OpenCV_LIBS}
+      core
+      curl
+      leptonica
+      tesseract)
+else ()
+  target_link_libraries(dlcv_ocr
+      ${OpenCV_LIBS}
+      core
+      curl
+      /usr/local/lib/libleptonica.1.79.0.dylib
+      /usr/local/lib/libtesseract.5.0.0.dylib)
+endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
+
+# set utils C++17
+set_property(TARGET dlcv_ocr PROPERTY CXX_STANDARD 17)
+#################  ocr  ######################

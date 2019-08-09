@@ -7,8 +7,7 @@ project(dlcv_include)
 set(core_include
     dir.hpp
     download.hpp
-    log.hpp
-    string.hpp)
+    log.hpp)
 install(FILES ${core_include} DESTINATION include/dlcv)
 
 # install utils include
@@ -20,3 +19,8 @@ install(FILES ${its_include} DESTINATION include/dlcv)
 set(vc_include
     dlcv_vc.hpp)
 install(FILES ${vc_include} DESTINATION include/dlcv)
+
+# install ocr include
+set(ocr_include
+    dlcv_ocr.hpp)
+install(FILES ${ocr_include} DESTINATION include/dlcv)

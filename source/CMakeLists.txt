@@ -46,3 +46,16 @@ target_link_libraries(vc ${OpenCV_LIBS} dlcv_vc curl)
 # set utils C++17
 set_property(TARGET vc PROPERTY CXX_STANDARD 17)
 #################  vc  ########################
+
+#################  ocr  #######################
+set(EXECUTABLE_OUTPUT_PATH bin/dlcv)
+# install utils exec
+add_executable(ocr ocr.cc)
+install(TARGETS ocr DESTINATION bin/dlcv)
+
+# link opencv and utils library
+target_link_libraries(ocr ${OpenCV_LIBS} dlcv_ocr curl)
+
+# set utils C++17
+set_property(TARGET ocr PROPERTY CXX_STANDARD 17)
+#################  ocr  #######################

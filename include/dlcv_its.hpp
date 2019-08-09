@@ -37,6 +37,6 @@ using namespace cv;
  * @author: Changyu Liu.
  * @last modify time: 2019.8.1
  */
-Mat imageToSketch(Mat &inputArray, Mat &outputArray);
+Mat imageToSketch(const char *filename);
 
 #endif // DLCV_DLCV_ITS_HPP

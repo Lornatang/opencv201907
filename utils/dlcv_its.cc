@@ -30,25 +30,32 @@ using namespace std;
  * @author: Changyu Liu.
  * @last modify time: 2019.8.2
  */
-Mat imageToSketch(Mat &inputArray, Mat &outputArray) {
-  // Scales, calculates absolute values, and converts the result to 8-bit.
-  addWeighted(inputArray, -1, static_cast<const _InputArray>(0.0), 0, 255, outputArray);
+Mat imageToSketch(const char *file_name) {
+  Mat image = imread(file_name);
+  int image_width=image.cols;
+  int image_height=image.rows;
+  Mat gray,blur;
 
-  // Applies the bilateral filter to an image.
-  GaussianBlur(outputArray, outputArray, Size(11, 11), 0);
+  cvtColor(image, gray, COLOR_BGR2GRAY);
 
-  // Blend: color dodge
-  Mat dstImage(outputArray.size(), CV_8UC1);
+  addWeighted(gray, -1, NULL, 0, 255, blur);
 
-  for (int y = 0; y < inputArray.rows; y++) {
-    auto *P0 = outputArray.ptr<uchar>(y);
-    auto *P1 = outputArray.ptr<uchar>(y);
-    auto *P = dstImage.ptr<uchar>(y);
-    for (int x = 0; x < inputArray.cols; x++) {
-      int tmp0 = P0[x];
-      int tmp1 = P1[x];
-      P[x] = (uchar) min((tmp0 + (tmp0 * tmp1) / (256 - tmp1)), 255);
+  GaussianBlur(blur, blur, Size(11, 11), 0);
+
+  Mat img(blur.size(), CV_8UC1);
+  for (int y=0; y < image_height; y++)
+  {
+
+    auto* P0  = gray.ptr<uchar>(y);
+    auto* P1  = blur.ptr<uchar>(y);
+    auto* P  = img.ptr<uchar>(y);
+    for (int x=0; x < image_width; x++)
+    {
+      int tmp0=P0[x];
+      int tmp1=P1[x];
+      P[x] =(uchar) min((tmp0+(tmp0*tmp1)/(256-tmp1)),255);
     }
+
   }
-  return outputArray;
+  return img;
 }

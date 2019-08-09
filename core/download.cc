@@ -30,17 +30,17 @@ using namespace std;
  * @ time: 2019.8.2
  */
 char *strncasestr(char *str, char *sub) {
-  if (!str || !sub) return NULL;
+  if (!str || !sub) return nullptr;
 
   int len = strlen(sub);
-  if (len == 0) return NULL;
+  if (len == 0) return nullptr;
 
   while (*str) {
     if (strncasecmp(str, sub, len) == 0)
       return str;
     ++str;
   }
-  return NULL;
+  return nullptr;
 }
 
 /**
@@ -121,7 +121,7 @@ unsigned long dns(char *host_name) {
 
   pp = host->h_addr_list;
 
-  if (*pp != NULL) {
+  if (*pp != nullptr) {
     addr.s_addr = *((unsigned int *) *pp);
     lprintf(MSG_INFO, "%s address is %s\n", host_name, inet_ntoa(addr));
     return addr.s_addr;
@@ -175,7 +175,7 @@ int set_socket_option(int sock) {
  * */
 int connect_server(http_t *info) {
   int sockfd;
-  struct sockaddr_in server;
+  struct sockaddr_in server{};
   unsigned long addr = 0;
   unsigned short port = info->port;
 
@@ -245,7 +245,7 @@ int send_request(http_t *info) {
  * @ last modifly time: 2019.8.2
  */
 int parse_http_header(http_t *info) {
-  char *p = NULL;
+  char *p = nullptr;
 
   // 解析第一行
   fgets(info->buffer, RECV_BUF, info->in);
@@ -401,7 +401,7 @@ int recv_chunked_response(http_t *info) {
   do {
     // Get the length of this section
     fgets(info->buffer, RECV_BUF, info->in);
-    part_len = strtol(info->buffer, NULL, 16);
+    part_len = strtol(info->buffer, nullptr, 16);
     lprintf(MSG_DEBUG, "part len: %ld\n", part_len);
     if (-1 == read_data(info, part_len)) return -1;
 

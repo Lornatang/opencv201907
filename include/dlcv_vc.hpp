@@ -44,4 +44,5 @@ int video_to_image(const char *video_name, const char *video_dir);
 vector<Rect> detect_smile(Mat &faces);
 
 int save_smile(const char *videoDir, const char *smilePath);
+
 #endif // DLCV_DLCV_VC_HPP

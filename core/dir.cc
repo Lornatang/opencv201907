@@ -40,7 +40,7 @@ int __access__(const char *filename) {
  * Returns:
  *   success create return 0, else return -1.
  * @author: Changyu Liu.
- * @last modify time: 2019.8.2
+ * @last modify time: 2019.8.7
  */
 int __mkdir__(const char *dir_name) {
   if (mkdir(dir_name, 0777) != -1)
