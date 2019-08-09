@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 
 # project name
-project(dlcv_exec)
+project(dlcv)
 
 # find OpenCV
 find_package(OpenCV REQUIRED)
@@ -21,18 +21,22 @@ else ()
   link_directories(/usr/local/lib)
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
-################# utils  ######################
+#################  its  ######################
 set(EXECUTABLE_OUTPUT_PATH bin/dlcv)
 # install utils exec
 add_executable(its its.cc)
 install(TARGETS its DESTINATION bin/dlcv)
 
 # link opencv and utils library
-target_link_libraries(its ${OpenCV_LIBS} dlcv_its curl)
+target_link_libraries(its
+    dlcv_core
+    dlcv_its
+    curl
+    ${OpenCV_LIBS})
 
 # set utils C++17
 set_property(TARGET its PROPERTY CXX_STANDARD 17)
-################# utils  ######################
+#################  its  ######################
 
 #################  vc  ########################
 set(EXECUTABLE_OUTPUT_PATH bin/dlcv)
@@ -41,7 +45,11 @@ add_executable(vc vc.cc)
 install(TARGETS vc DESTINATION bin/dlcv)
 
 # link opencv and utils library
-target_link_libraries(vc ${OpenCV_LIBS} dlcv_vc curl)
+target_link_libraries(vc
+    dlcv_core
+    dlcv_vc
+    curl
+    ${OpenCV_LIBS})
 
 # set utils C++17
 set_property(TARGET vc PROPERTY CXX_STANDARD 17)
@@ -54,7 +62,11 @@ add_executable(ocr ocr.cc)
 install(TARGETS ocr DESTINATION bin/dlcv)
 
 # link opencv and utils library
-target_link_libraries(ocr ${OpenCV_LIBS} dlcv_ocr curl)
+target_link_libraries(ocr
+    dlcv_core
+    dlcv_ocr
+    curl
+    ${OpenCV_LIBS})
 
 # set utils C++17
 set_property(TARGET ocr PROPERTY CXX_STANDARD 17)

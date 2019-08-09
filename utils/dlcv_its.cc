@@ -30,7 +30,7 @@ using namespace std;
  * @author: Changyu Liu.
  * @last modify time: 2019.8.2
  */
-Mat imageToSketch(const char *file_name) {
+Mat image_to_sketch(const char *file_name) {
   Mat image = imread(file_name);
   int image_width=image.cols;
   int image_height=image.rows;

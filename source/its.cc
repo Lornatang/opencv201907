@@ -21,14 +21,6 @@
 using namespace cv;
 using namespace std;
 
-static void help() {
-  cout << "\nThe program is image transfer sketch style.\n\n"
-          "Usage:\n"
-          "  its [url]\n"
-          "Example:\n"
-          "  its http://pic33.nipic.com/20131007/13639685_123501617185_2.jpg\n\n";
-}
-
 int main(int argc, const char *argv[]) {
   const char *base_dir =    "/home/wwwroot/my_resume/static/images/dlcv";
   const char *raw_image =   "/home/wwwroot/my_resume/static/images/dlcv/raw_sketch.png";
@@ -50,7 +42,7 @@ int main(int argc, const char *argv[]) {
   else
     cout << "detector image dir exists, not create." << endl;
 
-  Mat sketch_image = imageToSketch(raw_image);
+  Mat sketch_image = image_to_sketch(raw_image);
   if (!sketch_image.empty()) {
     cout << "image transfer style success!" << endl;
     imwrite(sketch, sketch_image);

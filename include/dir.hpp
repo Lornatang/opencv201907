@@ -34,7 +34,7 @@
  * @author: Changyu Liu.
  * @last modify time: 2019.8.5.
  */
-int __access__(const char *filename);
+int __access__(const char *);
 
 /**
  * Create a directory if the file directory does not exist.
@@ -45,7 +45,7 @@ int __access__(const char *filename);
  * @author: Changyu Liu.
  * @last modify time: 2019.7.30.
  */
-int __mkdir__(const char *dirName);
+int __mkdir__(const char *);
 
 /**
  * Delete files generated during program running.
@@ -56,7 +56,7 @@ int __mkdir__(const char *dirName);
  * @author: Changyu Liu.
  * @last modify time: 2019.7.30.
  */
-int __rmdir__(const char *dirName);
+int __rmdir__(const char *);
 
 
 #endif // DLCV_DIR_HPP

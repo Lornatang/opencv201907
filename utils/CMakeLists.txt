@@ -31,7 +31,7 @@ else()
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 # link utils library
-target_link_libraries(dlcv_its ${OpenCV_LIBS} core curl)
+target_link_libraries(dlcv_its ${OpenCV_LIBS} dlcv_core curl)
 # set utils C++17
 set_property(TARGET dlcv_its PROPERTY CXX_STANDARD 17)
 ################# utils  ######################
@@ -50,7 +50,7 @@ else()
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 # link utils library
-target_link_libraries(dlcv_vc ${OpenCV_LIBS} core curl)
+target_link_libraries(dlcv_vc ${OpenCV_LIBS} dlcv_core curl)
 # set utils C++17
 set_property(TARGET dlcv_vc PROPERTY CXX_STANDARD 17)
 #################  vc  ########################
@@ -71,14 +71,14 @@ endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
   target_link_libraries(dlcv_ocr
       ${OpenCV_LIBS}
-      core
+      dlcv_core
       curl
       leptonica
       tesseract)
 else ()
   target_link_libraries(dlcv_ocr
       ${OpenCV_LIBS}
-      core
+      dlcv_core
       curl
       /usr/local/lib/libleptonica.1.79.0.dylib
       /usr/local/lib/libtesseract.5.0.0.dylib)

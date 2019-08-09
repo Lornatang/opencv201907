@@ -25,8 +25,6 @@
 
 #include <iostream>
 
-using namespace cv;
-
 /**
  * Convert color map to simple pencil style.
  * Args:
@@ -37,6 +35,6 @@ using namespace cv;
  * @author: Changyu Liu.
  * @last modify time: 2019.8.1
  */
-Mat imageToSketch(const char *filename);
+cv::Mat imageToSketch(const char *);
 
 #endif // DLCV_DLCV_ITS_HPP

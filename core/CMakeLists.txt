@@ -18,19 +18,19 @@ set(LIBRARY_OUTPUT_PATH lib)
 set(CORE_SOURCE
     dir.cc
     download.cc)
-add_library(core SHARED ${CORE_SOURCE})
+add_library(${PROJECT_NAME} SHARED ${CORE_SOURCE})
 # install library
 # must check system os
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
-  install(TARGETS core LIBRARY DESTINATION lib64)
+  install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION lib64)
 else()
-  install(TARGETS core LIBRARY DESTINATION lib)
+  install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION lib)
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 # link opencv library
-target_link_libraries(core ${OpenCV_LIBS} curl)
+target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS} curl)
 
 # set C++17
-set_property(TARGET core PROPERTY CXX_STANDARD 17)
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 
 

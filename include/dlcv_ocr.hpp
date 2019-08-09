@@ -30,7 +30,7 @@
 #include <vector>
 #include <fstream>
 #include <cstring>
-#include <stdlib.h>
+#include <cstdlib>
 
 
 using namespace cv;
@@ -45,7 +45,7 @@ using namespace std;
  * @author: Changyu Liu.
  * @last modify time: 2019.8.6.
  */
-Mat img_to_binary(const String &filename);
+Mat img_to_binary(const String &);
 
 /**
  * Calculate image tilt Angle.
@@ -58,7 +58,7 @@ Mat img_to_binary(const String &filename);
  *   double angle = compute_skew(image);
  *   cout << "angle: " << angle << endl;
  */
-double compute_skew(const char *filename);
+double compute_skew(const char *);
 
 /**
  * Convert and intercept an image that has found an Angle of tilt.
@@ -72,7 +72,7 @@ double compute_skew(const char *filename);
  *   double angle = compute_skew(image);
  *   deskew(image, angle);
  */
-Mat deskew(const char *filename, double angle);
+Mat deskew(const char *, double );
 
 /**
  * detector card face and save it.
@@ -84,7 +84,7 @@ Mat deskew(const char *filename, double angle);
  * @author: Changyu Liu
  * @last modify time: 2019.8.7
  */
-int save_face(const char *filename, const char *save_path);
+int save_face(const char *, const char *);
 
 /**
  * ocr.
@@ -95,7 +95,7 @@ int save_face(const char *filename, const char *save_path);
  * @author: Changyu Liu
  * @last modify time: 2019.8.6
  */
-char *image_to_string(const char *filename);
+char *image_to_string(const char *);
 
 /**
  * save string data to text.
@@ -107,6 +107,6 @@ char *image_to_string(const char *filename);
  * @author: Changyu Liu
  * @last modify time: 2019.8.6
  */
-int save_data(const char *text, const char *filename);
+int save_data(const char *, const char *);
 
 #endif // DLCV_DLCV_OCR_HPP

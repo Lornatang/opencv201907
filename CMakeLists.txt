@@ -12,10 +12,10 @@ set(CMAKE_INSTALL_PREFIX "/usr/local")
 # add_subdirectory(include)
 
 # add dlcv core to path
-# add_subdirectory(core)
+add_subdirectory(core)
 
 # add Image to Sketch to path
-# add_subdirectory(utils)
+add_subdirectory(utils)
 
 # add exec to path
 add_subdirectory(source)

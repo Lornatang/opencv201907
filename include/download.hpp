@@ -80,7 +80,7 @@ typedef struct {
  * @ author: Changyu Liu
  * @ time: 2019.7.25
  */
-char *strncasestr(char *str, char *sub);
+char *strncasestr(char *, char *);
 
 /**
  * resolve domain.
@@ -92,7 +92,7 @@ char *strncasestr(char *str, char *sub);
  * @ author: Changyu Liu
  * @ last modifly time: 2019.7.25
  */
-int parser_URL(char *url, http_t *info);
+int parser_URL(char *, http_t *);
 
 /**
  * resolve dns
@@ -103,7 +103,7 @@ int parser_URL(char *url, http_t *info);
  * @ author: Changyu Liu
  * @ last modifly time: 2019.7.25
  */
-unsigned long dns(char *host_name);
+unsigned long dns(char *);
 
 /**
  * set connect time out
@@ -114,7 +114,7 @@ unsigned long dns(char *host_name);
  * @ author: Changyu Liu
  * @ last modifly time: 2019.7.25
  */
-int set_socket_option(int sock);
+int set_socket_option(int );
 
 /**
  * connet to server func
@@ -125,7 +125,7 @@ int set_socket_option(int sock);
  * @ author: Changyu Liu
  * @ last modifly time: 2019.7.25
  * */
-int connect_server(http_t *info);
+int connect_server(http_t *);
 
 /**
  * Send server requests
@@ -136,7 +136,7 @@ int connect_server(http_t *info);
  * @ author: Changyu Liu
  * @ last modifly time: 2019.7.25
  */
-int send_request(http_t *info);
+int send_request(http_t *);
 
 /**
  * resolve response header
@@ -147,7 +147,7 @@ int send_request(http_t *info);
  * @ author: Changyu Liu
  * @ last modifly time: 2019.7.25
  */
-int parse_http_header(http_t *info);
+int parse_http_header(http_t *);
 
 /**
  * Save the content of the server response.
@@ -160,7 +160,7 @@ int parse_http_header(http_t *info);
  * @ author: Changyu Liu
  * @ last modifly time: 2019.7.25
  */
-int save_data(http_t *info, const char *buf, int len);
+int save_data(http_t *, const char *, int );
 
 /**
  * read file data
@@ -172,7 +172,7 @@ int save_data(http_t *info, const char *buf, int len);
  * @ author: Changyu Liu
  * @ last modifly time: 2019.7.25
  */
-int read_data(http_t *info, int len);
+int read_data(http_t *, int );
 
 /**
  * Chunked data sent back by receiving server
@@ -183,7 +183,7 @@ int read_data(http_t *info, int len);
  * @ author: Changyu Liu
  * @ last modifly time: 2019.7.25
  */
-int recv_chunked_response(http_t *info);
+int recv_chunked_response(http_t *);
 
 /**
  * Calculate average download speed
@@ -194,7 +194,7 @@ int recv_chunked_response(http_t *info);
  * @ author: Changyu Liu
  * @ last modifly time: 2019.7.25
  */
-float calc_download_speed(http_t *info);
+float calc_download_speed(http_t *);
 
 /**
  * receive response header
@@ -205,7 +205,7 @@ float calc_download_speed(http_t *info);
  * @ author: Changyu Liu
  * @ last modifly time: 2019.7.25
  */
-int recv_response(http_t *info);
+int recv_response(http_t *);
 
 /**
  * Clean up all downloads
@@ -216,7 +216,7 @@ int recv_response(http_t *info);
  * @ author: Changyu Liu
  * @ last modifly time: 2019.7.25
  */
-void clean_up(http_t *info);
+void clean_up(http_t *);
 
 /**
  * download image func.
@@ -230,7 +230,7 @@ void clean_up(http_t *info);
  * @ author: Changyu Liu
  * @ last modify time: 2019.8.2
  */
-int download_image(char *url, char *save_path);
+int download_image(char *, char *);
 
 /**
  * copy data to a file.
@@ -246,7 +246,7 @@ int download_image(char *url, char *save_path);
  * @author: Changyu Liu
  * @last modify time: 2019.8.3
  */
-size_t writeData(void *ptr, size_t size, size_t count, FILE *stream);
+size_t writeData(void *, size_t , size_t , FILE *);
 
 /**
  * download file func.
@@ -260,6 +260,6 @@ size_t writeData(void *ptr, size_t size, size_t count, FILE *stream);
  * @ author: Changyu Liu
  * @ last modify time: 2019.8.3
  */
-CURLcode download_file(char *url, char *fileName);
+CURLcode download_file(char *, char *);
 
 #endif  // DLCV_DOWNLOAD_HPP
