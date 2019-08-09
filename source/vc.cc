@@ -14,7 +14,6 @@
  * ==============================================================================
  */
 
-#include "dlcv/log.hpp"
 #include "dlcv/dir.hpp"
 #include "dlcv/download.hpp"
 #include "dlcv/dlcv_vc.hpp"
@@ -22,46 +21,46 @@
 using namespace std;
 using namespace cv;
 
-static void help() {
-  cout << "\nThe program is extract video beautiful cover.\n\n"
-          "Usage:\n"
-          "  vc [url]\n"
-          "Example:\n"
-          "  vc www.google.com \n\n";
-}
-
 int main(int argc, const char *argv[]) {
-  const char *base_dir =    "/home/wwwroot/my_resume/static/images/dlcv";
-  const char *video_name =  "/home/wwwroot/my_resume/static/images/dlcv/video.mp4";
-  const char *video_dir =   "/home/wwwroot/my_resume/static/images/dlcv/video";
-  const char *smile_dir =   "/home/wwwroot/my_resume/static/images/dlcv/static";
-  const char *smile =       "/home/wwwroot/my_resume/static/images/dlcv/static/smile.png";
-  if (__mkdir__(base_dir) != -1)
-    cout << "detector base dir not exists, auto create it." << endl;
-  else
-    cout << "detector base dir exists, not create." << endl;
+  const char *base_dir   =    "/home/wwwroot/my_resume/static/images/dlcv";
+  const char *video_name =    "/home/wwwroot/my_resume/static/images/dlcv/video.mp4";
+  const char *video_dir  =    "/home/wwwroot/my_resume/static/images/dlcv/video";
+  const char *smile_dir  =    "/home/wwwroot/my_resume/static/images/dlcv/static";
+  const char *smile_path =    "/home/wwwroot/my_resume/static/images/dlcv/static/smile.png";
 
+  system("clear");
+
+  printf("####Staring get video beautiful cover program!####\n\n\n");
+
+  printf("[·]Start automatically detecting if the base directory exists.\n");
+  if (__mkdir__(base_dir) != -1)
+    printf("[-]Not found base directory, auto create base directory.\n\n");
+  else
+    printf("[!]Found base directory, not create base directory.\n\n");
+
+  printf("[·]Start automatically detecting if the video directory exists.\n");
   if (__mkdir__(video_dir) != -1)
-    cout << "detector video dir not exists, auto create it." << endl;
+    printf("[-]Not found video directory, auto create video directory.\n\n");
   else
-    cout << "detector video dir exists, not create." << endl;
+    printf("[!]Found video directory, not creat video directory.\n\n");
+
+  printf("[·]Start automatically detecting if the smile directory exists.\n");
   if (__mkdir__(smile_dir) != -1)
-    cout << "detector smile dir not exists, auto create it." << endl;
+    printf("[-]Not found smile directory, auto create smile directory.\n\n");
   else
-    cout << "detector smile dir exists, not create." << endl;
+    printf("[!]Found smile directory, not creat smile directory.\n\n");
 
   if (video_to_image(video_name, video_dir) == -1) {
-    cerr << "video transfer image error, please check video exists!" << endl;
-    return -3;
+    perror("[!]video transfer image error, please check video exists!\n\n");
+    return -1;
   }
 
-  // Read the image, convert it into gray image, and then equalize the
-  // histogram.
-  save_smile(video_dir, smile);
+  // Read the image, convert it into gray image, and then equalize the histogram.
+  save_smile(video_dir, smile_path);
 
   if (__rmdir__(video_dir) == -1) {
-    cerr << "remove video dir error, please check permissions!" << endl;
-    return -5;
+    perror("[!]remove video dir error, please check permissions!\n\n");
+    return -1;
   }
   return 0;
 }

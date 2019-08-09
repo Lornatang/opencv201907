@@ -14,40 +14,38 @@
  * ==============================================================================
  */
 
+#include "dlcv/dir.hpp"
 #include "dlcv/dlcv_ocr.hpp"
+#include "dlcv/download.hpp"
 
 using namespace cv;
 using namespace std;
 
 int main(int argc, const char *argv[]) {
-  const char *base_dir =      "/home/wwwroot/my_resume/static/images/dlcv";
-  const char *raw_path =      "/home/wwwroot/my_resume/static/images/dlcv/raw_ocr.png";
-  const char *correct_path =  "/home/wwwroot/my_resume/static/images/dlcv/correct.png";
-  const char *face =          "/home/wwwroot/my_resume/static/images/dlcv/face.png";
-  const char *binary_path =   "/home/wwwroot/my_resume/static/images/dlcv/binary.png";
-  const char *text_path =     "/home/wwwroot/my_resume/static/images/dlcv/text.txt";
+  const char *base_dir     =    "/home/wwwroot/my_resume/static/images/dlcv";
+  const char *raw_path     =    "/home/wwwroot/my_resume/static/images/dlcv/raw_ocr.png";
+  const char *correct_path =    "/home/wwwroot/my_resume/static/images/dlcv/correct.png";
+  const char *face_path    =    "/home/wwwroot/my_resume/static/images/dlcv/face.png";
+  const char *text_path    =    "/home/wwwroot/my_resume/static/images/dlcv/text.txt";
 
+  system("clear");
+
+  printf("####Staring image sketch style conversion program!####\n\n\n");
+
+  printf("[·]Start automatically detecting if the base directory exists.\n");
   if (__mkdir__(base_dir) != -1)
-    cout << "detector base dir not exists, auto create it." << endl;
+    printf("[-]Not found base directory, auto create base directory.\n\n");
   else
-    cout << "detector base dir exists, not create." << endl;
-
-//  if (download_file(const_cast<char *>(url), const_cast<char *>(raw_path)) == CURLE_FAILED_INIT) {
-//    cerr << "download file error!" << endl;
-//    return -1;
-//  }
-
+    printf("[!]Found base directory, not create base directory.\n\n");
 
   double angle = compute_skew(raw_path);
   Mat correct_image = deskew(raw_path, angle);
   imwrite(correct_path, correct_image);
 
-  if (save_face(raw_path, face) == -1)
-    cerr << "no face!" << endl;
+  // Capture the head in the photo.
+  save_face(raw_path, face_path);
 
-  Mat newImage = img_to_binary(raw_path);
-  imwrite(binary_path, newImage);
-
+  // Extract the text from the picture.
   const char *text = image_to_string(raw_path);
 
   if (save_data(text, text_path) == -1) {

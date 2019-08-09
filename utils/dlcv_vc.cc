@@ -14,7 +14,6 @@
  */
 
 #include "dlcv/dlcv_vc.hpp"
-#include "dlcv/dir.hpp"
 
 using namespace cv;
 using namespace std;
@@ -33,23 +32,24 @@ string forward_salash = "/";
  */
 int video_to_image(const char *video_name, const char *video_dir) {
   int frame_count = 1;
-  int num = 0;
+  int num = 1;
   Mat image;
 
   VideoCapture cap(video_name);
   if (!cap.isOpened()) return -1;
+  string __video_dir = video_dir + forward_salash;
   string __video_name = video_name;
-  string __dir_name = video_dir;
   bool flag = true;
   while (flag) {
     cap.read(image);
     if (image.empty()) flag = false;
-    if (frame_count % 12 == 0) {
-      num += 1;
-      string image_path = video_dir + forward_salash +  to_string(num) + ".png";
+    if (frame_count % 20 == 0) {
+      string image_name = to_string(num) + ".png";
+      string image_path = __video_dir + image_name;
       imwrite(image_path, image);
+      num++;
     }
-    frame_count += 1;
+    frame_count++;
   }
   cap.release();
   return 0;
@@ -66,32 +66,32 @@ vector<Rect> detect_smile(Mat &faces) {
 }
 
 int save_smile(const char *video_dir, const char *smile_path) {
+  double min_smile_degree, max_smile_degree = 0.;
+  Mat image, gray;
+  vector<Rect> smiles;
   string __video_dir = video_dir + forward_salash;
-  double min_smile_degree = 0.;
-  double max_smile_degree = 0.;
-  for (int i = 1; i < 9999; i++) {
+
+  for (int i = 1; i < 60; i++) {
     string image_name = to_string(i) + ".png";
     string image_path = __video_dir + image_name;
 
-    Mat image = imread(image_path);
-    if (image.empty()) break;
-    Mat gray;
+    image = imread(image_path);
+    if (image.empty()) return -1;
+
     cvtColor(image, gray, COLOR_BGR2GRAY);
-    vector<Rect> smiles = detect_smile(gray);
+    equalizeHist(gray, gray);
+    smiles = detect_smile(gray);
 
     if (!smiles.empty())
-      for (const auto& r : smiles) {
-        min_smile_degree = r.height;
+      for (const auto& smile : smiles) {
+        min_smile_degree = smile.height + smile.width;
         if (min_smile_degree > max_smile_degree) {
           imwrite(smile_path, image);
           max_smile_degree = min_smile_degree;
         }
+        else
+          break;
       }
   }
-  if (__access__(smile_path) == -1)
-    cerr << "undetector smile from this video!" << endl;
-  else
-    cout << "detector smile successful!" << endl;
-
   return 0;
 }

@@ -22,32 +22,33 @@ using namespace cv;
 using namespace std;
 
 int main(int argc, const char *argv[]) {
-  const char *base_dir =    "/home/wwwroot/my_resume/static/images/dlcv";
-  const char *raw_image =   "/home/wwwroot/my_resume/static/images/dlcv/raw_sketch.png";
-  const char *image_dir =   "/home/wwwroot/my_resume/static/images/dlcv/static";
-  const char *sketch =      "/home/wwwroot/my_resume/static/images/dlcv/static/sketch.png";
+  const char *base_dir    =     "/home/wwwroot/my_resume/static/images/dlcv";
+  const char *raw_image   =     "/home/wwwroot/my_resume/static/images/dlcv/raw_sketch.png";
+  const char *image_dir   =     "/home/wwwroot/my_resume/static/images/dlcv/static";
+  const char *sketch_path =     "/home/wwwroot/my_resume/static/images/dlcv/static/sketch.png";
 
+  system("clear");
+
+  printf("####Staring image sketch style conversion program!####\n\n\n");
+
+  printf("[·]Start automatically detecting if the base directory exists.\n");
   if (__mkdir__(base_dir) != -1)
-    cout << "detector base dir not exists, auto create it." << endl;
+    printf("[-]Not found base directory, auto create base directory.\n\n");
   else
-    cout << "detector base dir exists, not create." << endl;
+    printf("[!]Found base directory, not create base directory.\n\n");
 
-//  if (download_file(const_cast<char *>(argv[1]), const_cast<char *>(raw_image)) == 2) {
-//    cerr << "download file error!" << endl;
-//    return -1;
-//  }
-
+  printf("[·]Start automatically detecting if the image directory exists.\n");
   if (__mkdir__(image_dir) != -1)
-    cout << "detector image dir not exists, auto create it." << endl;
+    printf("[-]Not found image directory, auto create image directory.\n\n");
   else
-    cout << "detector image dir exists, not create." << endl;
+    printf("[!]Found image directory, not create image directory.\n\n");
 
   Mat sketch_image = image_to_sketch(raw_image);
   if (!sketch_image.empty()) {
-    cout << "image transfer style success!" << endl;
-    imwrite(sketch, sketch_image);
+    printf("[-]Image transfer style success!\n");
+    imwrite(sketch_path, sketch_image);
   } else {
-    cerr << "image transfer style failed!" << endl;
+    perror("[!]Image transfer style failed!\n");
     return -1;
   }
   return 0;

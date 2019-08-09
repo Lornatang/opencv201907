@@ -23,15 +23,11 @@
 #include "opencv2/opencv.hpp"
 #include "tesseract/baseapi.h"
 
-#include "dlcv/dir.hpp"
-#include "dlcv/download.hpp"
-
 #include <iostream>
 #include <vector>
 #include <fstream>
 #include <cstring>
 #include <cstdlib>
-
 
 using namespace cv;
 using namespace std;
@@ -72,7 +68,7 @@ double compute_skew(const char *);
  *   double angle = compute_skew(image);
  *   deskew(image, angle);
  */
-Mat deskew(const char *, double );
+Mat deskew(const char *, double);
 
 /**
  * detector card face and save it.

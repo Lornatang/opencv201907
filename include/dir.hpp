@@ -28,7 +28,7 @@
 /**
  * check file or dir exists.
  * Args:
- *   filename: input file name.
+ *   file_name: input file name.
  * Returns:
  *   if exists return 0, else return -1.
  * @author: Changyu Liu.
@@ -39,7 +39,7 @@ int __access__(const char *);
 /**
  * Create a directory if the file directory does not exist.
  * Args:
- *   dirName: The name of the folder you entered.
+ *   dir_name: The name of the folder you entered.
  * Returns:
  *   success create return 0, else return -1.
  * @author: Changyu Liu.
@@ -50,7 +50,7 @@ int __mkdir__(const char *);
 /**
  * Delete files generated during program running.
  * Args:
- *   dirName: Folder name to delete.
+ *   dir_name: Folder name to delete.
  * Returns:
  *   success create return 0, else return -1.
  * @author: Changyu Liu.
@@ -58,5 +58,15 @@ int __mkdir__(const char *);
  */
 int __rmdir__(const char *);
 
+/**
+ * Delete the specified file.
+ * Args:
+ *   file_name: input file name.option: folder name.
+ * Returns:
+ *   success create return 0, else return -1.
+ * @author: Changyu Liu.
+ * @last modify time: 2019.8.9
+ */
+int __remove__(const char *);
 
 #endif // DLCV_DIR_HPP

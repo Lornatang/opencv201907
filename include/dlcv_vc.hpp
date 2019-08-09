@@ -38,8 +38,27 @@
  */
 int video_to_image(const char *, const char *);
 
+/**
+ * Check the smiley faces in the picture.
+ * Args:
+ *   image: Matrix type data.
+ * Returns:
+ *   success return 0, else return -1
+ * @ author: Changyu Liu
+ * @ last modify time: 2019.8.9
+ */
 std::vector<cv::Rect> detect_smile(cv::Mat &);
 
+/**
+ * Save the recognized smiley face to the specified directory.
+ * Args:
+ *   video_dir: Get a smiley face under a bunch of pictures.
+ *   image: Matrix type data.
+ * Returns:
+ *   success return 0, else return -1
+ * @ author: Changyu Liu
+ * @ last modify time: 2019.8.9
+ */
 int save_smile(const char *, const char *);
 
 #endif // DLCV_DLCV_VC_HPP
