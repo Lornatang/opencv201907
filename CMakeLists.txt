@@ -9,7 +9,7 @@ set(CMAKE_BUILD_TYPE "Release")
 set(CMAKE_INSTALL_PREFIX "/usr/local")
 
 # add include to path
-# add_subdirectory(include)
+add_subdirectory(include)
 
 # add dlcv core to path
 add_subdirectory(core)
