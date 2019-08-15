@@ -25,6 +25,8 @@
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
+#include <set>
 #include <fstream>
 #include <cstring>
 #include <cstdlib>
@@ -81,6 +83,55 @@ Mat deskew(const char *, double);
  * @last modify time: 2019.8.7
  */
 int save_face(const char *, const char *);
+
+/**
+ * Sort the four corners
+ * @author: Changyu Liu
+ * @last modify time: 2019.8.15
+ */
+bool sort_corners(std::vector<cv::Point2f> &);
+
+/**
+ * Calculate the size of the intersection of the edges of the graph.
+ * @author: Changyu Liu
+ * @last modify time: 2019.8.15
+ */
+cv::Point2f compute_intersect(cv::Vec4i, cv::Vec4i);
+
+/**
+ * Detect if edges are connected
+ * @author: Changyu Liu
+ * @last modify time: 2019.8.15
+ */
+bool is_bad_line(int, int);
+
+/**
+ * Sort the detected frameworks
+ * @author: Changyu Liu
+ * @last modify time: 2019.8.15
+ */
+bool x_sort(const cv::Point2f &, const cv::Point2f &);
+
+/**
+ * Sort the detected angles
+ * @author: Changyu Liu
+ * @last modify time: 2019.8.15
+ */
+void sort_corners(std::vector<cv::Point2f> &, cv::Point2f);
+
+/**
+ * Calculate the size of the correction drawing
+ * @author: Changyu Liu
+ * @last modify time: 2019.8.15
+ */
+void cal_dst_size(const std::vector<cv::Point2f> &);
+
+/**
+ * correct image ops
+ * @author: Changyu Liu
+ * @last modify time: 2019.8.15
+ */
+void adjust(const char *, const char *);
 
 /**
  * ocr.
