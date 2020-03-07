@@ -14,8 +14,8 @@
  * ==============================================================================
  */
 
-#include "dlcv/log.hpp"
-#include "dlcv/download.hpp"
+#include "../include/log.hpp"
+#include "../include/download.hpp"
 
 using namespace std;
 

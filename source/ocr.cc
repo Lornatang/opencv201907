@@ -14,9 +14,9 @@
  * ==============================================================================
  */
 
-#include "dlcv/dir.hpp"
-#include "dlcv/dlcv_ocr.hpp"
-#include "dlcv/download.hpp"
+#include "../include/dir.hpp"
+#include "../include/dlcv_ocr.hpp"
+#include "../include/download.hpp"
 
 using namespace cv;
 using namespace std;
@@ -27,8 +27,6 @@ int main(int argc, const char *argv[]) {
   const char *correct_path =    "/home/wwwroot/my_resume/static/images/dlcv/correct.png";
   const char *face_path    =    "/home/wwwroot/my_resume/static/images/dlcv/face.png";
   const char *text_path    =    "/home/wwwroot/my_resume/static/images/dlcv/text.txt";
-
-  system("clear");
 
   printf("####Staring image sketch style conversion program!####\n\n\n");
 

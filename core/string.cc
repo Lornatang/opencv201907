@@ -14,7 +14,7 @@
  * ==============================================================================
  */
 
-#include "dlcv/string.hpp"
+#include "../include/string.hpp"
 
 /**
  * Calculates the length of the string.

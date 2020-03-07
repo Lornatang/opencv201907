@@ -13,7 +13,7 @@
  * ==============================================================================
  */
 
-#include "dlcv/dlcv_vc.hpp"
+#include "../include/dlcv_vc.hpp"
 
 using namespace cv;
 using namespace std;

@@ -50,7 +50,7 @@
 
 #include "curl/curl.h"
 
-#include "dlcv/log.hpp"
+#include "../include/log.hpp"
 
 typedef struct {
   int sock;  // Socket Communicating with Server

@@ -14,9 +14,8 @@
  * ==============================================================================
  */
 
-#include "dlcv/dir.hpp"
-#include "dlcv/download.hpp"
-#include "dlcv/dlcv_its.hpp"
+#include "../include/dir.hpp"
+#include "../include/dlcv_its.hpp"
 
 using namespace cv;
 using namespace std;
@@ -26,8 +25,6 @@ int main(int argc, const char *argv[]) {
   const char *raw_image   =     "/home/wwwroot/my_resume/static/images/dlcv/raw_sketch.png";
   const char *image_dir   =     "/home/wwwroot/my_resume/static/images/dlcv/static";
   const char *sketch_path =     "/home/wwwroot/my_resume/static/images/dlcv/static/sketch.png";
-
-  system("clear");
 
   printf("####Staring image sketch style conversion program!####\n\n\n");
 

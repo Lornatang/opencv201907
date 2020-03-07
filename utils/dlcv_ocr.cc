@@ -14,7 +14,7 @@
  * ==============================================================================
  */
 
-#include "dlcv/dlcv_ocr.hpp"
+#include "../include/dlcv_ocr.hpp"
 
 using namespace cv;
 using namespace std;

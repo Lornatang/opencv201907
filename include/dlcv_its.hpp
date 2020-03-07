@@ -35,6 +35,6 @@
  * @author: Changyu Liu.
  * @last modify time: 2019.8.1
  */
-cv::Mat imageToSketch(const char *);
+cv::Mat image_to_sketch(const char *);
 
 #endif // DLCV_DLCV_ITS_HPP

@@ -13,22 +13,19 @@
  * limitations under the License.
  * ==============================================================================
  */
-
-#include "dlcv/dir.hpp"
-#include "dlcv/download.hpp"
-#include "dlcv/dlcv_vc.hpp"
+#include "../include/dir.hpp"
+#include "../include/download.hpp"
+#include "../include/dlcv_vc.hpp"
 
 using namespace std;
 using namespace cv;
 
 int main(int argc, const char *argv[]) {
-  const char *base_dir   =    "/home/wwwroot/my_resume/static/images/dlcv";
-  const char *video_name =    "/home/wwwroot/my_resume/static/images/dlcv/video.mp4";
-  const char *video_dir  =    "/home/wwwroot/my_resume/static/images/dlcv/video";
-  const char *smile_dir  =    "/home/wwwroot/my_resume/static/images/dlcv/static";
-  const char *smile_path =    "/home/wwwroot/my_resume/static/images/dlcv/static/smile.png";
-
-  system("clear");
+  const char *base_dir   =    "/home/Program/daydao/static/images/dlcv";
+  const char *video_name =    "/home/Program/daydao/static/images/dlcv/video.mp4";
+  const char *video_dir  =    "/home/Program/daydao/static/images/dlcv/video";
+  const char *smile_dir  =    "/home/Program/daydao/static/images/dlcv/static";
+  const char *smile_path =    "/home/Program/daydao/static/images/dlcv/static/smile.png";
 
   printf("####Staring get video beautiful cover program!####\n\n\n");
 

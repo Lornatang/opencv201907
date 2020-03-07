@@ -14,12 +14,7 @@ include_directories(/usr/local/include/opencv4)
 include_directories(/usr/local/include/dlcv)
 
 # load dlcv library
-if (CMAKE_SYSTEM_NAME MATCHES "Linux")
-  link_directories(/usr/local/lib)
-  link_directories(/usr/local/lib64)
-else ()
-  link_directories(/usr/local/lib)
-endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
+link_directories(/usr/local/lib)
 
 #################  its  ######################
 set(EXECUTABLE_OUTPUT_PATH bin/dlcv)
@@ -34,8 +29,8 @@ target_link_libraries(its
     curl
     ${OpenCV_LIBS})
 
-# set utils C++17
-set_property(TARGET its PROPERTY CXX_STANDARD 17)
+# set utils C++20
+set_property(TARGET its PROPERTY CXX_STANDARD 20)
 #################  its  ######################
 
 #################  vc  ########################
@@ -51,8 +46,8 @@ target_link_libraries(vc
     curl
     ${OpenCV_LIBS})
 
-# set utils C++17
-set_property(TARGET vc PROPERTY CXX_STANDARD 17)
+# set utils C++20
+set_property(TARGET vc PROPERTY CXX_STANDARD 20)
 #################  vc  ########################
 
 #################  ocr  #######################
@@ -68,6 +63,6 @@ target_link_libraries(ocr
     curl
     ${OpenCV_LIBS})
 
-# set utils C++17
-set_property(TARGET ocr PROPERTY CXX_STANDARD 17)
+# set utils C++20
+set_property(TARGET ocr PROPERTY CXX_STANDARD 20)
 #################  ocr  #######################
